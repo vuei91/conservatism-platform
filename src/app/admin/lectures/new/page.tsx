@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Loader2 } from "lucide-react";
 import { Button, Input, Card, CardContent } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
 import { useCategories } from "@/hooks";
@@ -17,6 +18,7 @@ const lectureSchema = z.object({
   category_id: z.string().optional(),
   difficulty: z.enum(["beginner", "intermediate", "advanced"]),
   instructor: z.string().optional(),
+  duration: z.number().optional(),
   is_published: z.boolean(),
   is_featured: z.boolean(),
 });
@@ -27,11 +29,14 @@ export default function NewLecturePage() {
   const router = useRouter();
   const { data: categories = [] } = useCategories();
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<LectureForm>({
     resolver: zodResolver(lectureSchema),
@@ -41,6 +46,38 @@ export default function NewLecturePage() {
       is_featured: false,
     },
   });
+
+  const youtubeUrl = watch("youtube_url");
+
+  const fetchYouTubeInfo = async () => {
+    if (!youtubeUrl) return;
+
+    setIsFetching(true);
+    setError(null);
+
+    try {
+      const res = await fetch(
+        `/api/youtube?url=${encodeURIComponent(youtubeUrl)}`,
+      );
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "영상 정보를 가져올 수 없습니다");
+        return;
+      }
+
+      setValue("title", data.title);
+      setValue("description", data.description || "");
+      setValue("instructor", data.channelTitle);
+      if (data.duration) {
+        setValue("duration", data.duration);
+      }
+    } catch {
+      setError("영상 정보를 가져오는 중 오류가 발생했습니다");
+    } finally {
+      setIsFetching(false);
+    }
+  };
 
   const onSubmit = async (data: LectureForm) => {
     setIsLoading(true);
@@ -63,6 +100,7 @@ export default function NewLecturePage() {
       category_id: data.category_id || null,
       difficulty: data.difficulty,
       instructor: data.instructor || null,
+      duration: data.duration || null,
       is_published: data.is_published,
       is_featured: data.is_featured,
     });
@@ -86,17 +124,40 @@ export default function NewLecturePage() {
       <Card>
         <CardContent className="p-6">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                유튜브 URL *
+              </label>
+              <div className="flex gap-2">
+                <input
+                  {...register("youtube_url")}
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={fetchYouTubeInfo}
+                  disabled={isFetching || !youtubeUrl}
+                >
+                  {isFetching ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "정보 가져오기"
+                  )}
+                </Button>
+              </div>
+              {errors.youtube_url && (
+                <p className="mt-1 text-sm text-red-500">
+                  {errors.youtube_url.message}
+                </p>
+              )}
+            </div>
+
             <Input
               label="강의 제목 *"
               {...register("title")}
               error={errors.title?.message}
-            />
-
-            <Input
-              label="유튜브 URL *"
-              placeholder="https://www.youtube.com/watch?v=..."
-              {...register("youtube_url")}
-              error={errors.youtube_url?.message}
             />
 
             <div>

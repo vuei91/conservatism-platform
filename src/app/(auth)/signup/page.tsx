@@ -41,13 +41,14 @@ export default function SignupPage() {
     setError(null);
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signUp({
+    const { data: authData, error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
       options: {
         data: {
           name: data.name,
         },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 
@@ -57,7 +58,14 @@ export default function SignupPage() {
       return;
     }
 
-    router.push("/login?message=이메일을 확인하여 가입을 완료하세요");
+    // 이메일 확인이 필요한 경우
+    if (authData.user && !authData.session) {
+      router.push("/login?message=이메일을 확인하여 가입을 완료하세요");
+    } else {
+      // 이메일 확인 없이 바로 로그인된 경우
+      router.push("/");
+      router.refresh();
+    }
   };
 
   const handleSocialLogin = async (provider: "google" | "kakao") => {

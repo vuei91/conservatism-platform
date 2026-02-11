@@ -26,6 +26,8 @@ export function YouTubePlayer({ videoId, onTimeUpdate }: YouTubePlayerProps) {
 
     playerRef.current = new window.YT.Player(containerRef.current, {
       videoId,
+      width: "100%",
+      height: "100%",
       playerVars: {
         autoplay: 0,
         modestbranding: 1,
@@ -78,8 +80,11 @@ export function YouTubePlayer({ videoId, onTimeUpdate }: YouTubePlayerProps) {
   }, [initPlayer]);
 
   return (
-    <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-black">
-      <div ref={containerRef} className="absolute inset-0" />
+    <div
+      className="relative w-full overflow-hidden rounded-lg bg-black"
+      style={{ paddingBottom: "56.25%" }}
+    >
+      <div ref={containerRef} className="absolute inset-0 h-full w-full" />
     </div>
   );
 }
