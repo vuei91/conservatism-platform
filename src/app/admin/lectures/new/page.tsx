@@ -9,6 +9,7 @@ import { Loader2 } from "lucide-react";
 import { Button, Input, Card, CardContent } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
 import { useCategories } from "@/hooks";
+import { useQueryClient } from "@tanstack/react-query";
 import { extractYouTubeId, getYouTubeThumbnail } from "@/lib/utils";
 
 const lectureSchema = z.object({
@@ -28,6 +29,7 @@ type LectureForm = z.infer<typeof lectureSchema>;
 export default function NewLecturePage() {
   const router = useRouter();
   const { data: categories = [] } = useCategories();
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -91,6 +93,17 @@ export default function NewLecturePage() {
     }
 
     const supabase = createClient();
+
+    // 현재 사용자 확인
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      setError("로그인이 필요합니다");
+      setIsLoading(false);
+      return;
+    }
+
     const { error } = await supabase.from("lectures").insert({
       title: data.title,
       youtube_url: data.youtube_url,
@@ -106,11 +119,17 @@ export default function NewLecturePage() {
     });
 
     if (error) {
-      setError(error.message);
+      console.error("Lecture insert error:", error);
+      if (error.code === "42501" || error.message.includes("policy")) {
+        setError("권한이 없습니다. 관리자 계정으로 로그인했는지 확인하세요.");
+      } else {
+        setError(`등록 실패: ${error.message}`);
+      }
       setIsLoading(false);
       return;
     }
 
+    await queryClient.invalidateQueries({ queryKey: ["lectures"] });
     router.push("/admin/lectures");
   };
 

@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button, Input, Card, CardContent } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 const curriculumSchema = z.object({
   title: z.string().min(1, "제목을 입력하세요"),
@@ -21,6 +22,7 @@ type CurriculumForm = z.infer<typeof curriculumSchema>;
 
 export default function NewCurriculumPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -61,6 +63,7 @@ export default function NewCurriculumPage() {
       return;
     }
 
+    await queryClient.invalidateQueries({ queryKey: ["curriculums"] });
     router.push(`/admin/curriculums/${newCurriculum.id}/edit`);
   };
 

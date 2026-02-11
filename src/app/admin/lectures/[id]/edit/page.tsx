@@ -9,6 +9,7 @@ import { Loader2 } from "lucide-react";
 import { Button, Input, Card, CardContent, Skeleton } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
 import { useCategories } from "@/hooks";
+import { useQueryClient } from "@tanstack/react-query";
 import { extractYouTubeId, getYouTubeThumbnail } from "@/lib/utils";
 
 const lectureSchema = z.object({
@@ -33,6 +34,7 @@ export default function EditLecturePage({ params }: PageProps) {
   const { id } = use(params);
   const router = useRouter();
   const { data: categories = [] } = useCategories();
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(true);
@@ -149,6 +151,8 @@ export default function EditLecturePage({ params }: PageProps) {
       return;
     }
 
+    await queryClient.invalidateQueries({ queryKey: ["lectures"] });
+    await queryClient.invalidateQueries({ queryKey: ["lecture", id] });
     router.push("/admin/lectures");
   };
 

@@ -16,6 +16,7 @@ import {
 } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
 import { useLectures } from "@/hooks";
+import { useQueryClient } from "@tanstack/react-query";
 import { getDifficultyLabel } from "@/lib/utils";
 import type { Lecture, Category } from "@/types/database";
 
@@ -45,6 +46,7 @@ export default function EditCurriculumPage({ params }: PageProps) {
   const { id } = use(params);
   const router = useRouter();
   const { data: allLectures = [] } = useLectures({ includeUnpublished: true });
+  const queryClient = useQueryClient();
 
   const [isLoading, setIsLoading] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(true);
@@ -133,6 +135,7 @@ export default function EditCurriculumPage({ params }: PageProps) {
       return;
     }
 
+    await queryClient.invalidateQueries({ queryKey: ["curriculums"] });
     router.push("/admin/curriculums");
   };
 
