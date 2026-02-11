@@ -1,19 +1,21 @@
-import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { LectureGrid } from "@/components/lectures";
-import { LectureFilters } from "./lecture-filters";
-import { Skeleton } from "@/components/ui";
+import { LecturesContent } from "./lectures-content";
+
+const PAGE_SIZE = 12;
 
 interface PageProps {
   searchParams: Promise<{
     category?: string;
     difficulty?: string;
     q?: string;
+    page?: string;
   }>;
 }
 
 export default async function LecturesPage({ searchParams }: PageProps) {
   const params = await searchParams;
+  const currentPage = Math.max(1, Number(params.page) || 1);
   const supabase = await createClient();
 
   const categoriesResult = await supabase
@@ -25,7 +27,7 @@ export default async function LecturesPage({ searchParams }: PageProps) {
 
   let query = supabase
     .from("lectures")
-    .select("*, category:categories(*)")
+    .select("*, category:categories(*)", { count: "exact" })
     .eq("is_published", true)
     .order("created_at", { ascending: false });
 
@@ -47,7 +49,12 @@ export default async function LecturesPage({ searchParams }: PageProps) {
     query = query.ilike("title", `%${params.q}%`);
   }
 
-  const { data: lectures } = await query;
+  const from = (currentPage - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
+  query = query.range(from, to);
+
+  const { data: lectures, count } = await query;
+  const totalPages = Math.ceil((count || 0) / PAGE_SIZE);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -58,36 +65,16 @@ export default async function LecturesPage({ searchParams }: PageProps) {
         </p>
       </div>
 
-      <div className="mb-8">
-        <LectureFilters
-          categories={categories}
-          currentCategory={params.category}
-          currentDifficulty={params.difficulty}
-          searchQuery={params.q}
-        />
-      </div>
-
-      <Suspense
-        fallback={
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div
-                key={i}
-                className="overflow-hidden rounded-xl border border-gray-200"
-              >
-                <Skeleton className="aspect-video w-full" />
-                <div className="p-4">
-                  <Skeleton className="mb-2 h-4 w-20" />
-                  <Skeleton className="mb-2 h-5 w-full" />
-                  <Skeleton className="h-4 w-24" />
-                </div>
-              </div>
-            ))}
-          </div>
-        }
+      <LecturesContent
+        categories={categories}
+        currentCategory={params.category}
+        currentDifficulty={params.difficulty}
+        searchQuery={params.q}
+        currentPage={currentPage}
+        totalPages={totalPages}
       >
         <LectureGrid lectures={lectures || []} />
-      </Suspense>
+      </LecturesContent>
     </div>
   );
 }

@@ -1,22 +1,19 @@
 import { createClient } from "@/lib/supabase/server";
 import { CurriculumCard } from "@/components/curriculum";
-import { Button } from "@/components/ui";
-import Link from "next/link";
+import { CurriculumsContent } from "./curriculums-content";
+
+const PAGE_SIZE = 9;
 
 interface PageProps {
   searchParams: Promise<{
     difficulty?: string;
+    page?: string;
   }>;
 }
 
-const difficulties = [
-  { value: "beginner", label: "입문" },
-  { value: "intermediate", label: "중급" },
-  { value: "advanced", label: "심화" },
-];
-
 export default async function CurriculumsPage({ searchParams }: PageProps) {
   const params = await searchParams;
+  const currentPage = Math.max(1, Number(params.page) || 1);
   const supabase = await createClient();
 
   let query = supabase
@@ -29,6 +26,7 @@ export default async function CurriculumsPage({ searchParams }: PageProps) {
         lecture:lectures(duration)
       )
     `,
+      { count: "exact" },
     )
     .eq("is_published", true)
     .order("order", { ascending: true });
@@ -40,7 +38,12 @@ export default async function CurriculumsPage({ searchParams }: PageProps) {
     );
   }
 
-  const { data } = await query;
+  const from = (currentPage - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
+  query = query.range(from, to);
+
+  const { data, count } = await query;
+  const totalPages = Math.ceil((count || 0) / PAGE_SIZE);
 
   const curriculums = (data || []).map((c) => ({
     ...c,
@@ -62,41 +65,23 @@ export default async function CurriculumsPage({ searchParams }: PageProps) {
         </p>
       </div>
 
-      {/* Difficulty Filter */}
-      <div className="mb-8 flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium text-gray-700">난이도:</span>
-        <Link href="/curriculums">
-          <Button
-            variant={!params.difficulty ? "primary" : "outline"}
-            size="sm"
-          >
-            전체
-          </Button>
-        </Link>
-        {difficulties.map((diff) => (
-          <Link key={diff.value} href={`/curriculums?difficulty=${diff.value}`}>
-            <Button
-              variant={params.difficulty === diff.value ? "primary" : "outline"}
-              size="sm"
-            >
-              {diff.label}
-            </Button>
-          </Link>
-        ))}
-      </div>
-
-      {/* Curriculum Grid */}
-      {curriculums.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <p className="text-gray-500">커리큘럼이 없습니다.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {curriculums.map((curriculum) => (
-            <CurriculumCard key={curriculum.id} curriculum={curriculum} />
-          ))}
-        </div>
-      )}
+      <CurriculumsContent
+        currentDifficulty={params.difficulty}
+        currentPage={currentPage}
+        totalPages={totalPages}
+      >
+        {curriculums.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <p className="text-gray-500">커리큘럼이 없습니다.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {curriculums.map((curriculum) => (
+              <CurriculumCard key={curriculum.id} curriculum={curriculum} />
+            ))}
+          </div>
+        )}
+      </CurriculumsContent>
     </div>
   );
 }
