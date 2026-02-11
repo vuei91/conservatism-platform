@@ -23,6 +23,13 @@ export async function GET(request: NextRequest) {
 
     if (!error) {
       redirectTo.searchParams.delete("next");
+
+      // 비밀번호 재설정인 경우 reset-password 페이지로 리다이렉트
+      if (type === "recovery") {
+        redirectTo.pathname = "/reset-password";
+        return NextResponse.redirect(redirectTo);
+      }
+
       return NextResponse.redirect(redirectTo);
     }
   }

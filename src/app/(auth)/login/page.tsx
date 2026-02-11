@@ -53,13 +53,30 @@ export default function LoginPage() {
     setError(null);
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data: authData, error } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
     });
 
     if (error) {
-      setError("이메일 또는 비밀번호가 올바르지 않습니다.");
+      // 이메일 미인증 에러 처리
+      if (error.message.includes("Email not confirmed")) {
+        setError(
+          "이메일 인증이 필요합니다. 가입 시 발송된 이메일을 확인해주세요.",
+        );
+      } else {
+        setError("이메일 또는 비밀번호가 올바르지 않습니다.");
+      }
+      setIsLoading(false);
+      return;
+    }
+
+    // 이메일 인증 여부 확인
+    if (authData.user && !authData.user.email_confirmed_at) {
+      await supabase.auth.signOut();
+      setError(
+        "이메일 인증이 필요합니다. 가입 시 발송된 이메일을 확인해주세요.",
+      );
       setIsLoading(false);
       return;
     }
@@ -111,6 +128,15 @@ export default function LoginPage() {
               {...register("password")}
               error={errors.password?.message}
             />
+
+            <div className="flex justify-end">
+              <Link
+                href="/forgot-password"
+                className="text-sm text-blue-600 hover:underline"
+              >
+                비밀번호를 잊으셨나요?
+              </Link>
+            </div>
 
             {error && <p className="text-sm text-red-500">{error}</p>}
 
