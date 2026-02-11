@@ -24,20 +24,14 @@ export default function LoginPage() {
 
   // 이미 로그인된 경우 홈으로 리다이렉트
   useEffect(() => {
-    const checkAuth = async () => {
-      const supabase = createClient();
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         router.replace("/");
       } else {
         setIsCheckingAuth(false);
       }
-    };
-
-    checkAuth();
+    });
   }, [router]);
 
   const {
@@ -81,8 +75,9 @@ export default function LoginPage() {
       return;
     }
 
-    // 강제로 페이지 새로고침하여 서버 컴포넌트 갱신
-    window.location.href = "/";
+    // router.refresh()로 서버 컴포넌트 갱신 후 이동
+    router.refresh();
+    router.push("/");
   };
 
   const handleSocialLogin = async () => {
