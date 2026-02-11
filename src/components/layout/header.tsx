@@ -7,11 +7,12 @@ import { Button } from "@/components/ui";
 import { useAuthStore } from "@/stores/auth-store";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { Skeleton } from "@/components/ui";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { user, setUser } = useAuthStore();
+  const { user, isLoading, setUser } = useAuthStore();
   const router = useRouter();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -25,7 +26,8 @@ export function Header() {
     const supabase = createClient();
     await supabase.auth.signOut();
     setUser(null);
-    window.location.href = "/";
+    router.refresh();
+    router.push("/");
   };
 
   return (
@@ -74,7 +76,12 @@ export function Header() {
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            {user ? (
+            {isLoading ? (
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-8 w-20 rounded-md" />
+                <Skeleton className="h-8 w-20 rounded-md" />
+              </div>
+            ) : user ? (
               <div className="flex items-center gap-3">
                 <Link href="/mypage">
                   <Button variant="ghost" size="sm">
@@ -151,7 +158,11 @@ export function Header() {
               >
                 커리큘럼
               </Link>
-              {user ? (
+              {isLoading ? (
+                <div className="px-3 py-2">
+                  <Skeleton className="h-8 w-full rounded-md" />
+                </div>
+              ) : user ? (
                 <>
                   <Link
                     href="/mypage"
