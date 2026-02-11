@@ -1,11 +1,7 @@
 import { createBrowserClient } from "@supabase/ssr";
 import type { Database } from "@/types/database";
 
-let client: ReturnType<typeof createBrowserClient<Database>> | null = null;
-
 export function createClient() {
-  if (client) return client;
-
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -13,6 +9,7 @@ export function createClient() {
     throw new Error("Missing Supabase environment variables");
   }
 
-  client = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);
-  return client;
+  // createBrowserClient는 내부적으로 싱글톤을 관리하므로
+  // 직접 싱글톤 패턴을 구현할 필요 없음
+  return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);
 }

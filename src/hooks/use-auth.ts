@@ -1,26 +1,17 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useAuthStore } from "@/stores/auth-store";
+import type { Session } from "@supabase/supabase-js";
 
 export function useAuth() {
   const { user, isLoading, setUser, setLoading } = useAuthStore();
 
-  useEffect(() => {
-    const supabase = createClient();
-
-    // onAuthStateChange가 초기 세션도 INITIAL_SESSION 이벤트로 전달하므로
-    // getSession()을 별도로 호출할 필요 없음 → 레이스 컨디션 제거
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (
-        session?.user &&
-        (event === "INITIAL_SESSION" ||
-          event === "SIGNED_IN" ||
-          event === "TOKEN_REFRESHED")
-      ) {
+  const handleSession = useCallback(
+    async (session: Session | null) => {
+      if (session?.user) {
+        const supabase = createClient();
         const { data: profile } = await supabase
           .from("profiles")
           .select("*")
@@ -28,12 +19,36 @@ export function useAuth() {
           .single();
 
         setUser(profile);
-        setLoading(false);
-      } else if (event === "SIGNED_OUT") {
+      } else {
         setUser(null);
-        setLoading(false);
-      } else if (event === "INITIAL_SESSION" && !session) {
-        // 로그인 안 된 상태
+      }
+      setLoading(false);
+    },
+    [setUser, setLoading],
+  );
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    // 1. 먼저 현재 세션을 즉시 확인 (새로고침 시 빠른 복원)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      handleSession(session);
+    });
+
+    // 2. 이후 auth 상태 변경 구독 (로그인/로그아웃/토큰 갱신)
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      // INITIAL_SESSION은 getSession()에서 이미 처리했으므로 스킵
+      if (event === "INITIAL_SESSION") return;
+
+      if (
+        event === "SIGNED_IN" ||
+        event === "TOKEN_REFRESHED" ||
+        event === "USER_UPDATED"
+      ) {
+        handleSession(session);
+      } else if (event === "SIGNED_OUT") {
         setUser(null);
         setLoading(false);
       }
@@ -42,7 +57,7 @@ export function useAuth() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [setUser, setLoading]);
+  }, [handleSession, setUser, setLoading]);
 
   return { user, isLoading };
 }
