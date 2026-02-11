@@ -46,6 +46,14 @@ export function Footer() {
             <ul className="mt-4 space-y-2">
               <li>
                 <Link
+                  href="/contact"
+                  className="text-sm text-gray-600 hover:text-blue-600"
+                >
+                  문의하기
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/terms"
                   className="text-sm text-gray-600 hover:text-blue-600"
                 >

@@ -15,6 +15,9 @@ const signupSchema = z
     password: z.string().min(6, "비밀번호는 6자 이상이어야 합니다"),
     confirmPassword: z.string(),
     name: z.string().min(2, "이름은 2자 이상이어야 합니다"),
+    agreeTerms: z.boolean().refine((val) => val === true, {
+      message: "이용약관에 동의해주세요",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "비밀번호가 일치하지 않습니다",
@@ -41,6 +44,20 @@ export default function SignupPage() {
     setError(null);
 
     const supabase = createClient();
+
+    // 이메일 중복 체크
+    const { data: existingUser } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("email", data.email)
+      .single();
+
+    if (existingUser) {
+      setError("이미 가입된 이메일입니다.");
+      setIsLoading(false);
+      return;
+    }
+
     const { data: authData, error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
@@ -53,7 +70,19 @@ export default function SignupPage() {
     });
 
     if (error) {
-      setError(error.message);
+      // 에러 메시지 한글화
+      if (
+        error.message.includes("already registered") ||
+        error.message.includes("already been registered")
+      ) {
+        setError("이미 가입된 이메일입니다.");
+      } else if (error.message.includes("invalid email")) {
+        setError("올바른 이메일 형식이 아닙니다.");
+      } else if (error.message.includes("password")) {
+        setError("비밀번호는 6자 이상이어야 합니다.");
+      } else {
+        setError("회원가입에 실패했습니다. 잠시 후 다시 시도해주세요.");
+      }
       setIsLoading(false);
       return;
     }
@@ -91,7 +120,7 @@ export default function SignupPage() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <Input
-              label="이름"
+              label="이름(닉네임)"
               type="text"
               {...register("name")}
               error={errors.name?.message}
@@ -114,6 +143,39 @@ export default function SignupPage() {
               {...register("confirmPassword")}
               error={errors.confirmPassword?.message}
             />
+
+            <div className="space-y-2">
+              <label className="flex items-start gap-2">
+                <input
+                  type="checkbox"
+                  {...register("agreeTerms")}
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-600">
+                  <Link
+                    href="/terms"
+                    target="_blank"
+                    className="text-blue-600 hover:underline"
+                  >
+                    이용약관
+                  </Link>
+                  {" 및 "}
+                  <Link
+                    href="/privacy"
+                    target="_blank"
+                    className="text-blue-600 hover:underline"
+                  >
+                    개인정보처리방침
+                  </Link>
+                  에 동의합니다.
+                </span>
+              </label>
+              {errors.agreeTerms && (
+                <p className="text-sm text-red-500">
+                  {errors.agreeTerms.message}
+                </p>
+              )}
+            </div>
 
             {error && <p className="text-sm text-red-500">{error}</p>}
 
