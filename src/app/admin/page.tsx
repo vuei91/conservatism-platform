@@ -53,6 +53,13 @@ export default function AdminPage() {
       color: "bg-purple-100 text-purple-600",
     },
     {
+      title: "멤버 관리",
+      description: "멤버 권한 관리",
+      icon: Users,
+      href: "/admin/members",
+      color: "bg-pink-100 text-pink-600",
+    },
+    {
       title: "통계",
       description: "방문자 및 시청 통계",
       icon: BarChart3,
