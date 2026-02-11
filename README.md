@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 보수주의 강의 플랫폼
 
-## Getting Started
+유튜브에 산재된 보수주의 관련 강의 영상을 체계적으로 정리하여 무료로 제공하는 교육 플랫폼입니다.
 
-First, run the development server:
+## 기술 스택
+
+- **프론트엔드**: Next.js 16 (App Router), TypeScript, Tailwind CSS
+- **상태 관리**: Zustand, TanStack Query
+- **백엔드/DB**: Supabase (PostgreSQL, Auth, RLS)
+- **배포**: Vercel
+
+## 주요 기능
+
+- 강의 탐색 및 시청 (비로그인 가능)
+- 커리큘럼 기반 체계적 학습
+- 코넬노트 형식 메모 기능 (로그인 시)
+- 즐겨찾기 및 시청 기록 (로그인 시)
+- 관리자 대시보드 (강의/커리큘럼/카테고리 관리)
+
+## 시작하기
+
+### 1. 환경 변수 설정
+
+`.env.local.example`을 복사하여 `.env.local` 파일을 생성하고 값을 설정하세요:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.local.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+필요한 환경 변수:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `NEXT_PUBLIC_SUPABASE_URL`: Supabase 프로젝트 URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase 익명 키
+- `YOUTUBE_API_KEY`: YouTube Data API 키 (선택)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 2. Supabase 설정
 
-## Learn More
+1. [Supabase](https://supabase.com)에서 새 프로젝트 생성
+2. `supabase/schema.sql` 파일의 SQL을 Supabase SQL Editor에서 실행
+3. Authentication 설정에서 소셜 로그인 프로바이더 설정 (Google, Kakao 등)
 
-To learn more about Next.js, take a look at the following resources:
+### 3. 의존성 설치 및 실행
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm install
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+http://localhost:3000 에서 확인할 수 있습니다.
 
-## Deploy on Vercel
+## 프로젝트 구조
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+├── app/                    # Next.js App Router 페이지
+│   ├── (auth)/            # 인증 관련 페이지 (로그인, 회원가입)
+│   ├── admin/             # 관리자 페이지
+│   ├── curriculums/       # 커리큘럼 페이지
+│   ├── lectures/          # 강의 페이지
+│   └── mypage/            # 마이페이지
+├── components/            # 재사용 컴포넌트
+│   ├── curriculum/        # 커리큘럼 관련 컴포넌트
+│   ├── layout/            # 레이아웃 컴포넌트 (Header, Footer)
+│   ├── lectures/          # 강의 관련 컴포넌트
+│   └── ui/                # 기본 UI 컴포넌트
+├── hooks/                 # 커스텀 훅 (React Query)
+├── lib/                   # 유틸리티 및 설정
+│   └── supabase/          # Supabase 클라이언트
+├── providers/             # React Context Providers
+├── stores/                # Zustand 스토어
+└── types/                 # TypeScript 타입 정의
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 배포
+
+Vercel에 배포하려면:
+
+1. GitHub에 저장소 푸시
+2. Vercel에서 프로젝트 import
+3. 환경 변수 설정
+4. 배포
+
+## 라이선스
+
+MIT
