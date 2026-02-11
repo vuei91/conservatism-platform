@@ -60,18 +60,18 @@ export default function SignupPage() {
 
     // 이메일 확인이 필요한 경우
     if (authData.user && !authData.session) {
-      router.push("/login?message=이메일을 확인하여 가입을 완료하세요");
+      window.location.href =
+        "/login?message=이메일을 확인하여 가입을 완료하세요";
     } else {
       // 이메일 확인 없이 바로 로그인된 경우
-      router.push("/");
-      router.refresh();
+      window.location.href = "/";
     }
   };
 
-  const handleSocialLogin = async (provider: "google" | "kakao") => {
+  const handleSocialLogin = async () => {
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
-      provider,
+      provider: "twitter",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
@@ -128,24 +128,9 @@ export default function SignupPage() {
             <div className="flex-1 border-t border-gray-200" />
           </div>
 
-          <div className="space-y-3">
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              onClick={() => handleSocialLogin("google")}
-            >
-              Google로 가입
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              onClick={() => handleSocialLogin("kakao")}
-            >
-              카카오로 가입
-            </Button>
-          </div>
+          <Button type="button" variant="outline" className="w-full" disabled>
+            X(Twitter)로 가입 (준비중)
+          </Button>
 
           <p className="mt-6 text-center text-sm text-gray-600">
             이미 계정이 있으신가요?{" "}

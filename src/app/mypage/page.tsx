@@ -164,27 +164,29 @@ export default function MyPage() {
         ) : (
           <div className="space-y-3">
             {notes.slice(0, 5).map((note) => (
-              <Card key={note.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      {note.cue && (
-                        <p className="mb-1 text-sm font-medium text-blue-600">
-                          {note.cue}
+              <Link key={note.id} href={`/lectures/${note.lecture_id}`}>
+                <Card className="transition-shadow hover:shadow-md">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        {note.cue && (
+                          <p className="mb-1 text-sm font-medium text-blue-600">
+                            {note.cue}
+                          </p>
+                        )}
+                        <p className="line-clamp-2 text-sm text-gray-700">
+                          {note.content}
                         </p>
+                      </div>
+                      {note.is_complete && (
+                        <span className="ml-2 rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">
+                          완료
+                        </span>
                       )}
-                      <p className="line-clamp-2 text-sm text-gray-700">
-                        {note.content}
-                      </p>
                     </div>
-                    {note.is_complete && (
-                      <span className="ml-2 rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">
-                        완료
-                      </span>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         )}

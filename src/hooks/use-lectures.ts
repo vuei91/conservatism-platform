@@ -10,6 +10,7 @@ export function useLectures(options?: {
   featured?: boolean;
   limit?: number;
   search?: string;
+  includeUnpublished?: boolean;
 }) {
   const supabase = createClient();
 
@@ -19,8 +20,12 @@ export function useLectures(options?: {
       let query = supabase
         .from("lectures")
         .select("*, category:categories(*)")
-        .eq("is_published", true)
         .order("created_at", { ascending: false });
+
+      // 관리자가 아닌 경우 공개된 강의만
+      if (!options?.includeUnpublished) {
+        query = query.eq("is_published", true);
+      }
 
       if (options?.categoryId) {
         query = query.eq("category_id", options.categoryId);

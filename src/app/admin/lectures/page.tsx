@@ -11,7 +11,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { getDifficultyLabel, getYouTubeThumbnail } from "@/lib/utils";
 
 export default function AdminLecturesPage() {
-  const { data: lectures = [], isLoading } = useLectures();
+  const { data: lectures = [], isLoading } = useLectures({
+    includeUnpublished: true,
+  });
   const queryClient = useQueryClient();
   const [deletingId, setDeletingId] = useState<string | null>(null);
 

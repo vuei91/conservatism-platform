@@ -45,14 +45,14 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/");
-    router.refresh();
+    // 강제로 페이지 새로고침하여 서버 컴포넌트 갱신
+    window.location.href = "/";
   };
 
-  const handleSocialLogin = async (provider: "google" | "kakao") => {
+  const handleSocialLogin = async () => {
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
-      provider,
+      provider: "twitter",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
@@ -97,24 +97,9 @@ export default function LoginPage() {
             <div className="flex-1 border-t border-gray-200" />
           </div>
 
-          <div className="space-y-3">
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              onClick={() => handleSocialLogin("google")}
-            >
-              Google로 로그인
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              onClick={() => handleSocialLogin("kakao")}
-            >
-              카카오로 로그인
-            </Button>
-          </div>
+          <Button type="button" variant="outline" className="w-full" disabled>
+            X(Twitter)로 로그인 (준비중)
+          </Button>
 
           <p className="mt-6 text-center text-sm text-gray-600">
             계정이 없으신가요?{" "}
