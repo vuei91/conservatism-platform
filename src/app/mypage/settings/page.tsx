@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ArrowLeft, User, Lock } from "lucide-react";
+import { ArrowLeft, User, Lock, UserX, AlertTriangle } from "lucide-react";
 import Link from "next/link";
-import { Card, CardContent, Button, Input } from "@/components/ui";
+import { Card, CardContent, Button, Input, Modal } from "@/components/ui";
 import { useAuthStore } from "@/stores/auth-store";
 import { createClient } from "@/lib/supabase/client";
 
@@ -32,7 +32,9 @@ type PasswordForm = z.infer<typeof passwordSchema>;
 export default function SettingsPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuthStore();
-  const [activeTab, setActiveTab] = useState<"profile" | "password">("profile");
+  const [activeTab, setActiveTab] = useState<"profile" | "password" | "delete">(
+    "profile",
+  );
 
   // Profile state
   const [profileError, setProfileError] = useState<string | null>(null);
@@ -43,6 +45,12 @@ export default function SettingsPage() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState(false);
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
+
+  // Delete account state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
 
   const profileForm = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
@@ -154,6 +162,39 @@ export default function SettingsPage() {
     passwordForm.reset();
   };
 
+  const onDeleteAccount = async () => {
+    if (deleteConfirmation !== "회원탈퇴") return;
+
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+      const response = await fetch("/api/users/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user!.id }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setDeleteError(data.error || "회원 탈퇴에 실패했습니다.");
+        setIsDeleting(false);
+        return;
+      }
+
+      // 로그아웃 처리
+      const supabase = createClient();
+      await supabase.auth.signOut();
+
+      // 홈으로 리다이렉트
+      router.push("/");
+    } catch {
+      setDeleteError("서버 오류가 발생했습니다.");
+      setIsDeleting(false);
+    }
+  };
+
   if (authLoading || !user) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-8">
@@ -202,6 +243,17 @@ export default function SettingsPage() {
         >
           <Lock className="h-4 w-4" />
           비밀번호 변경
+        </button>
+        <button
+          onClick={() => setActiveTab("delete")}
+          className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
+            activeTab === "delete"
+              ? "border-red-600 text-red-600"
+              : "border-transparent text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          <UserX className="h-4 w-4" />
+          회원 탈퇴
         </button>
       </div>
 
@@ -299,6 +351,89 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Delete Account Tab */}
+      {activeTab === "delete" && (
+        <Card className="border-red-200">
+          <CardContent className="p-6">
+            <div className="mb-6 flex items-start gap-3 rounded-lg bg-red-50 p-4">
+              <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />
+              <div>
+                <h3 className="font-medium text-red-800">
+                  회원 탈퇴 시 주의사항
+                </h3>
+                <ul className="mt-2 space-y-1 text-sm text-red-700">
+                  <li>• 모든 학습 기록이 삭제됩니다.</li>
+                  <li>• 작성한 노트가 모두 삭제됩니다.</li>
+                  <li>• 즐겨찾기 목록이 삭제됩니다.</li>
+                  <li>• 삭제된 데이터는 복구할 수 없습니다.</li>
+                </ul>
+              </div>
+            </div>
+
+            <Button
+              variant="outline"
+              className="border-red-300 text-red-600 hover:bg-red-50"
+              onClick={() => setShowDeleteModal(true)}
+            >
+              <UserX className="mr-2 h-4 w-4" />
+              회원 탈퇴하기
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setDeleteConfirmation("");
+          setDeleteError(null);
+        }}
+        title="회원 탈퇴 확인"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600">
+            정말로 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+          </p>
+          <p className="text-sm text-gray-600">
+            탈퇴를 확인하려면 아래에{" "}
+            <span className="font-semibold text-red-600">회원탈퇴</span>를
+            입력해주세요.
+          </p>
+
+          <Input
+            type="text"
+            placeholder="회원탈퇴"
+            value={deleteConfirmation}
+            onChange={(e) => setDeleteConfirmation(e.target.value)}
+          />
+
+          {deleteError && <p className="text-sm text-red-500">{deleteError}</p>}
+
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowDeleteModal(false);
+                setDeleteConfirmation("");
+                setDeleteError(null);
+              }}
+            >
+              취소
+            </Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700"
+              disabled={deleteConfirmation !== "회원탈퇴" || isDeleting}
+              onClick={onDeleteAccount}
+            >
+              {isDeleting ? "탈퇴 처리 중..." : "회원 탈퇴"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
