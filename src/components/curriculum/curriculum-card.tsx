@@ -19,40 +19,9 @@ export function CurriculumCard({ curriculum }: CurriculumCardProps) {
   return (
     <Link href={`/curriculums/${curriculum.id}`}>
       <article className="group overflow-hidden rounded-xl border border-gray-200 bg-white transition-shadow hover:shadow-lg">
-        {/* Thumbnail Grid */}
+        {/* Thumbnail */}
         <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-blue-500 to-blue-700">
-          {thumbnails.length >= 4 ? (
-            // 2x2 그리드
-            <div className="grid grid-cols-2 grid-rows-2 h-full">
-              {thumbnails.slice(0, 4).map((thumb, i) => (
-                <div key={i} className="relative overflow-hidden">
-                  <Image
-                    src={thumb}
-                    alt=""
-                    fill
-                    className="object-cover transition-transform group-hover:scale-105"
-                    sizes="(max-width: 768px) 50vw, 25vw"
-                  />
-                </div>
-              ))}
-            </div>
-          ) : thumbnails.length >= 2 ? (
-            // 2개: 좌우 분할
-            <div className="grid grid-cols-2 h-full">
-              {thumbnails.slice(0, 2).map((thumb, i) => (
-                <div key={i} className="relative overflow-hidden">
-                  <Image
-                    src={thumb}
-                    alt=""
-                    fill
-                    className="object-cover transition-transform group-hover:scale-105"
-                    sizes="(max-width: 768px) 50vw, 25vw"
-                  />
-                </div>
-              ))}
-            </div>
-          ) : thumbnails.length === 1 ? (
-            // 1개: 전체
+          {thumbnails.length >= 1 ? (
             <Image
               src={thumbnails[0]}
               alt={curriculum.title}
