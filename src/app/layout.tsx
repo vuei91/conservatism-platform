@@ -33,21 +33,12 @@ export const metadata: Metadata = {
     title: "보수주의 강의 플랫폼",
     description:
       "보수주의 사상과 철학을 배우고자 하는 분들을 위한 무료 교육 플랫폼",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "보수주의 강의 플랫폼",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "보수주의 강의 플랫폼",
     description:
       "보수주의 사상과 철학을 배우고자 하는 분들을 위한 무료 교육 플랫폼",
-    images: ["/og-image.png"],
   },
   robots: {
     index: true,
