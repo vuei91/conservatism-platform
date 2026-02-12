@@ -2,7 +2,16 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { Heart, Clock, Eye, BookOpen, ChevronRight } from "lucide-react";
+import Image from "next/image";
+import {
+  Heart,
+  Clock,
+  Eye,
+  BookOpen,
+  ChevronRight,
+  Play,
+  CheckCircle,
+} from "lucide-react";
 import { YouTubePlayer, LectureCard } from "@/components/lectures";
 import { Button, Badge, Card, CardContent } from "@/components/ui";
 import { useAuthStore } from "@/stores/auth-store";
@@ -15,20 +24,31 @@ import {
   formatDuration,
   getDifficultyLabel,
   getDifficultyColor,
+  getYouTubeThumbnail,
 } from "@/lib/utils";
-import { NoteSection } from "./note-section";
+import { NoteFloatingButton } from "./note-floating-button";
 import type { Lecture, Category, Curriculum } from "@/types/database";
+
+interface CurriculumLectureItem {
+  id: string;
+  order: number;
+  lecture: Lecture & { category: Category | null };
+}
 
 interface LecturePlayerProps {
   lecture: Lecture & { category: Category | null };
   relatedLectures: (Lecture & { category: Category | null })[];
   curriculums: Curriculum[];
+  curriculumLectures?: CurriculumLectureItem[];
+  activeCurriculum?: Curriculum | null;
 }
 
 export function LecturePlayer({
   lecture,
   relatedLectures,
   curriculums,
+  curriculumLectures = [],
+  activeCurriculum,
 }: LecturePlayerProps) {
   const { user } = useAuthStore();
   const { data: isFavorite } = useIsFavorite(lecture.id);
@@ -112,13 +132,6 @@ export function LecturePlayer({
             )}
           </div>
 
-          {/* Note Section (for logged in users) */}
-          {user && (
-            <div className="mt-8">
-              <NoteSection lectureId={lecture.id} />
-            </div>
-          )}
-
           {/* Related Lectures */}
           {relatedLectures.length > 0 && (
             <div className="mt-8">
@@ -136,8 +149,75 @@ export function LecturePlayer({
 
         {/* Sidebar */}
         <div className="lg:col-span-1">
-          {/* Curriculums containing this lecture */}
-          {curriculums.length > 0 && (
+          {/* Curriculum Lecture List */}
+          {activeCurriculum && curriculumLectures.length > 0 && (
+            <Card className="mb-6">
+              <CardContent className="p-4">
+                <div className="mb-4">
+                  <Link
+                    href={`/curriculums/${activeCurriculum.id}`}
+                    className="text-sm text-blue-600 hover:underline"
+                  >
+                    ← 커리큘럼으로 돌아가기
+                  </Link>
+                  <h3 className="mt-2 font-semibold text-gray-900">
+                    {activeCurriculum.title}
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    {curriculumLectures.length}개 강의
+                  </p>
+                </div>
+                <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+                  {curriculumLectures.map((cl, index) => {
+                    const isActive = cl.lecture.id === lecture.id;
+                    return (
+                      <Link
+                        key={cl.id}
+                        href={`/lectures/${cl.lecture.id}?curriculum=${activeCurriculum.id}`}
+                        className={`flex items-center gap-3 rounded-lg p-2 transition-colors ${
+                          isActive
+                            ? "bg-blue-50 border border-blue-200"
+                            : "hover:bg-gray-50"
+                        }`}
+                      >
+                        <div
+                          className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-medium ${
+                            isActive
+                              ? "bg-blue-500 text-white"
+                              : "bg-gray-100 text-gray-600"
+                          }`}
+                        >
+                          {index + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p
+                            className={`text-sm truncate ${
+                              isActive
+                                ? "font-medium text-blue-700"
+                                : "text-gray-700"
+                            }`}
+                          >
+                            {cl.lecture.title}
+                          </p>
+                          {cl.lecture.duration && (
+                            <p className="text-xs text-gray-400">
+                              {formatDuration(cl.lecture.duration)}
+                            </p>
+                          )}
+                        </div>
+                        {isActive && (
+                          <Play className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Curriculums containing this lecture (when not in curriculum mode) */}
+          {!activeCurriculum && curriculums.length > 0 && (
             <Card className="mb-6">
               <CardContent className="p-4">
                 <h3 className="mb-4 flex items-center gap-2 font-semibold text-gray-900">
@@ -147,7 +227,7 @@ export function LecturePlayer({
                   {curriculums.map((curriculum) => (
                     <Link
                       key={curriculum.id}
-                      href={`/curriculums/${curriculum.id}`}
+                      href={`/lectures/${lecture.id}?curriculum=${curriculum.id}`}
                       className="flex items-center justify-between rounded-lg border border-gray-200 p-3 transition-colors hover:bg-gray-50"
                     >
                       <div>
@@ -194,6 +274,9 @@ export function LecturePlayer({
           )}
         </div>
       </div>
+
+      {/* Floating Note Button (for logged in users) */}
+      {user && <NoteFloatingButton lectureId={lecture.id} />}
     </div>
   );
 }

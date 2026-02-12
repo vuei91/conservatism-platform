@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Plus, Edit2, Trash2, Eye, EyeOff, Star, BookOpen } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff, Star, BookOpen } from "lucide-react";
 import { Button, Card, CardContent, Badge, Skeleton } from "@/components/ui";
 import { useCurriculums } from "@/hooks";
 import { createClient } from "@/lib/supabase/client";
@@ -75,36 +75,45 @@ export default function AdminCurriculumsPage() {
       ) : (
         <div className="space-y-4">
           {curriculums.map((curriculum) => (
-            <Card key={curriculum.id}>
+            <Card
+              key={curriculum.id}
+              className="cursor-pointer hover:shadow-md transition-shadow"
+            >
               <CardContent className="flex items-center gap-4 p-4">
-                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100">
-                  <BookOpen className="h-6 w-6 text-blue-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-medium text-gray-900 truncate">
-                      {curriculum.title}
-                    </h3>
-                    {!curriculum.is_published && (
-                      <Badge variant="warning">비공개</Badge>
-                    )}
-                    {curriculum.is_featured && (
-                      <Badge variant="info">추천</Badge>
-                    )}
+                <Link
+                  href={`/admin/curriculums/${curriculum.id}/edit`}
+                  className="flex flex-1 items-center gap-4 min-w-0"
+                >
+                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100">
+                    <BookOpen className="h-6 w-6 text-blue-600" />
                   </div>
-                  <div className="mt-1 flex items-center gap-2 text-sm text-gray-500">
-                    <span>{getDifficultyLabel(curriculum.difficulty)}</span>
-                    <span>•</span>
-                    <span>{curriculum.lectureCount}개 강의</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium text-gray-900 truncate">
+                        {curriculum.title}
+                      </h3>
+                      {!curriculum.is_published && (
+                        <Badge variant="warning">비공개</Badge>
+                      )}
+                      {curriculum.is_featured && (
+                        <Badge variant="info">추천</Badge>
+                      )}
+                    </div>
+                    <div className="mt-1 flex items-center gap-2 text-sm text-gray-500">
+                      <span>{getDifficultyLabel(curriculum.difficulty)}</span>
+                      <span>•</span>
+                      <span>{curriculum.lectureCount}개 강의</span>
+                    </div>
                   </div>
-                </div>
+                </Link>
                 <div className="flex items-center gap-2">
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() =>
-                      toggleFeatured(curriculum.id, curriculum.is_featured)
-                    }
+                    onClick={(e) => {
+                      e.preventDefault();
+                      toggleFeatured(curriculum.id, curriculum.is_featured);
+                    }}
                     title={curriculum.is_featured ? "추천 해제" : "추천 설정"}
                   >
                     <Star
@@ -118,9 +127,10 @@ export default function AdminCurriculumsPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() =>
-                      togglePublish(curriculum.id, curriculum.is_published)
-                    }
+                    onClick={(e) => {
+                      e.preventDefault();
+                      togglePublish(curriculum.id, curriculum.is_published);
+                    }}
                     title={
                       curriculum.is_published ? "비공개로 전환" : "공개로 전환"
                     }
@@ -131,15 +141,13 @@ export default function AdminCurriculumsPage() {
                       <EyeOff className="h-4 w-4" />
                     )}
                   </Button>
-                  <Link href={`/admin/curriculums/${curriculum.id}/edit`}>
-                    <Button variant="ghost" size="sm">
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                  </Link>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleDelete(curriculum.id)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDelete(curriculum.id);
+                    }}
                     disabled={deletingId === curriculum.id}
                   >
                     <Trash2 className="h-4 w-4 text-red-500" />

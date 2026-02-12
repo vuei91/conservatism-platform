@@ -24,7 +24,8 @@ export default async function HomePage() {
         *,
         curriculum_lectures(
           id,
-          lecture:lectures(duration)
+          order,
+          lecture:lectures(duration, youtube_id, thumbnail_url)
         )
       `,
         )
@@ -39,16 +40,37 @@ export default async function HomePage() {
     ]);
 
   const lectures = lecturesResult.data || [];
-  const curriculums = (curriculumsResult.data || []).map((c) => ({
-    ...c,
-    lectureCount: c.curriculum_lectures?.length || 0,
-    totalDuration:
-      c.curriculum_lectures?.reduce(
-        (acc: number, cl: { lecture: { duration: number | null } | null }) =>
-          acc + (cl.lecture?.duration || 0),
-        0,
-      ) || 0,
-  }));
+  const curriculums = (curriculumsResult.data || []).map((c) => {
+    const sortedLectures =
+      c.curriculum_lectures?.sort(
+        (a: { order: number }, b: { order: number }) => a.order - b.order,
+      ) || [];
+
+    const thumbnails = sortedLectures
+      .slice(0, 4)
+      .map(
+        (cl: {
+          lecture: { youtube_id: string; thumbnail_url: string | null } | null;
+        }) =>
+          cl.lecture?.thumbnail_url ||
+          (cl.lecture?.youtube_id
+            ? `https://img.youtube.com/vi/${cl.lecture.youtube_id}/mqdefault.jpg`
+            : null),
+      )
+      .filter(Boolean) as string[];
+
+    return {
+      ...c,
+      lectureCount: c.curriculum_lectures?.length || 0,
+      totalDuration:
+        c.curriculum_lectures?.reduce(
+          (acc: number, cl: { lecture: { duration: number | null } | null }) =>
+            acc + (cl.lecture?.duration || 0),
+          0,
+        ) || 0,
+      thumbnails,
+    };
+  });
   const categories = categoriesResult.data || [];
 
   return (

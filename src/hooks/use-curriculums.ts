@@ -21,7 +21,8 @@ export function useCurriculums(options?: {
           *,
           curriculum_lectures(
             id,
-            lecture:lectures(duration)
+            order,
+            lecture:lectures(duration, youtube_id, thumbnail_url)
           )
         `,
         )
@@ -44,18 +45,43 @@ export function useCurriculums(options?: {
       const { data, error } = await query;
       if (error) throw error;
 
-      return data.map((curriculum) => ({
-        ...curriculum,
-        lectureCount: curriculum.curriculum_lectures?.length || 0,
-        totalDuration:
-          curriculum.curriculum_lectures?.reduce(
-            (
-              acc: number,
-              cl: { lecture: { duration: number | null } | null },
-            ) => acc + (cl.lecture?.duration || 0),
-            0,
-          ) || 0,
-      }));
+      return data.map((curriculum) => {
+        const sortedLectures =
+          curriculum.curriculum_lectures?.sort(
+            (a: { order: number }, b: { order: number }) => a.order - b.order,
+          ) || [];
+
+        // 상위 4개 강의의 썸네일
+        const thumbnails = sortedLectures
+          .slice(0, 4)
+          .map(
+            (cl: {
+              lecture: {
+                youtube_id: string;
+                thumbnail_url: string | null;
+              } | null;
+            }) =>
+              cl.lecture?.thumbnail_url ||
+              (cl.lecture?.youtube_id
+                ? `https://img.youtube.com/vi/${cl.lecture.youtube_id}/mqdefault.jpg`
+                : null),
+          )
+          .filter(Boolean);
+
+        return {
+          ...curriculum,
+          lectureCount: curriculum.curriculum_lectures?.length || 0,
+          totalDuration:
+            curriculum.curriculum_lectures?.reduce(
+              (
+                acc: number,
+                cl: { lecture: { duration: number | null } | null },
+              ) => acc + (cl.lecture?.duration || 0),
+              0,
+            ) || 0,
+          thumbnails,
+        };
+      });
     },
   });
 }

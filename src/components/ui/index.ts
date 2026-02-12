@@ -4,3 +4,4 @@ export { Badge } from "./badge";
 export { Card, CardHeader, CardContent, CardFooter } from "./card";
 export { Skeleton } from "./skeleton";
 export { Pagination } from "./pagination";
+export { Modal } from "./modal";

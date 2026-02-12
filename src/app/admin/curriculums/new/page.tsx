@@ -12,7 +12,6 @@ import { useQueryClient } from "@tanstack/react-query";
 const curriculumSchema = z.object({
   title: z.string().min(1, "제목을 입력하세요"),
   description: z.string().optional(),
-  learning_goals: z.string().optional(),
   difficulty: z.enum(["beginner", "intermediate", "advanced"]),
   is_published: z.boolean(),
   is_featured: z.boolean(),
@@ -49,7 +48,6 @@ export default function NewCurriculumPage() {
       .insert({
         title: data.title,
         description: data.description || null,
-        learning_goals: data.learning_goals || null,
         difficulty: data.difficulty,
         is_published: data.is_published,
         is_featured: data.is_featured,
@@ -89,17 +87,6 @@ export default function NewCurriculumPage() {
               </label>
               <textarea
                 {...register("description")}
-                rows={3}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                학습 목표
-              </label>
-              <textarea
-                {...register("learning_goals")}
                 rows={3}
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />

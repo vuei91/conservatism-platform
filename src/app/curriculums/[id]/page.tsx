@@ -84,7 +84,9 @@ export default async function CurriculumDetailPage({ params }: PageProps) {
 
         {sortedLectures.length > 0 && (
           <div className="mt-6">
-            <Link href={`/lectures/${sortedLectures[0].lecture?.id}`}>
+            <Link
+              href={`/lectures/${sortedLectures[0].lecture?.id}?curriculum=${id}`}
+            >
               <Button size="lg">
                 <Play className="mr-2 h-5 w-5" />
                 학습 시작하기
@@ -118,7 +120,10 @@ export default async function CurriculumDetailPage({ params }: PageProps) {
               if (!lecture) return null;
 
               return (
-                <Link key={cl.id} href={`/lectures/${lecture.id}`}>
+                <Link
+                  key={cl.id}
+                  href={`/lectures/${lecture.id}?curriculum=${id}`}
+                >
                   <Card className="transition-shadow hover:shadow-md">
                     <CardContent className="flex items-center gap-4 p-4">
                       <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-medium text-blue-600">
