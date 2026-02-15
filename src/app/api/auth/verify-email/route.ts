@@ -2,12 +2,14 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
   const token = searchParams.get("token");
 
   if (!token) {
     return NextResponse.redirect(
-      `${origin}/login?error=유효하지 않은 인증 링크입니다`,
+      `${siteUrl}/login?error=유효하지 않은 인증 링크입니다`,
     );
   }
 
@@ -24,14 +26,14 @@ export async function GET(request: Request) {
 
   if (tokenError || !tokenData) {
     return NextResponse.redirect(
-      `${origin}/login?error=유효하지 않거나 이미 사용된 인증 링크입니다`,
+      `${siteUrl}/login?error=유효하지 않거나 이미 사용된 인증 링크입니다`,
     );
   }
 
   // 만료 확인
   if (new Date(tokenData.expires_at) < new Date()) {
     return NextResponse.redirect(
-      `${origin}/login?error=인증 링크가 만료되었습니다. 다시 회원가입해주세요`,
+      `${siteUrl}/login?error=인증 링크가 만료되었습니다. 다시 회원가입해주세요`,
     );
   }
 
@@ -48,5 +50,5 @@ export async function GET(request: Request) {
     .update({ email_verified: true })
     .eq("id", tokenData.user_id);
 
-  return NextResponse.redirect(`${origin}/?verified=true`);
+  return NextResponse.redirect(`${siteUrl}/?verified=true`);
 }

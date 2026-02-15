@@ -46,7 +46,9 @@ export async function POST(request: Request) {
     }
 
     // Nodemailer로 인증 메일 발송
-    const verifyUrl = `${new URL(request.url).origin}/api/auth/verify-email?token=${token}`;
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
+    const verifyUrl = `${siteUrl}/api/auth/verify-email?token=${token}`;
 
     try {
       await sendMail({
