@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -11,7 +11,8 @@ export async function GET(request: Request) {
     );
   }
 
-  const supabase = await createClient();
+  // admin 클라이언트 사용 (비로그인 상태에서 RLS 우회)
+  const supabase = supabaseAdmin;
 
   // 토큰 조회
   const { data: tokenData, error: tokenError } = await supabase

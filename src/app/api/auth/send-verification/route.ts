@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { resend, EMAIL_FROM } from "@/lib/resend";
 import crypto from "crypto";
 
@@ -14,7 +14,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const supabase = await createClient();
+    // admin 클라이언트 사용 (RLS 우회)
+    const supabase = supabaseAdmin;
 
     // 기존 미사용 토큰 삭제
     await supabase
