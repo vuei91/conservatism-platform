@@ -65,14 +65,22 @@ export default function LoginPage() {
       return;
     }
 
-    // 이메일 인증 여부 확인
-    if (authData.user && !authData.user.email_confirmed_at) {
-      await supabase.auth.signOut();
-      setError(
-        "이메일 인증이 필요합니다. 가입 시 발송된 이메일을 확인해주세요.",
-      );
-      setIsLoading(false);
-      return;
+    // 이메일 인증 여부 확인 (Resend 기반)
+    if (authData.user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("email_verified")
+        .eq("id", authData.user.id)
+        .single();
+
+      if (profile && !profile.email_verified) {
+        await supabase.auth.signOut();
+        setError(
+          "이메일 인증이 필요합니다. 가입 시 발송된 이메일을 확인해주세요.",
+        );
+        setIsLoading(false);
+        return;
+      }
     }
 
     // router.refresh()로 서버 컴포넌트 갱신 후 이동

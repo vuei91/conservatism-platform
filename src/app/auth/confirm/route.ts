@@ -30,6 +30,11 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(redirectTo);
       }
 
+      // 이메일 인증(signup) 완료 표시
+      if (type === "signup" || type === "email") {
+        redirectTo.searchParams.set("verified", "true");
+      }
+
       return NextResponse.redirect(redirectTo);
     }
   }

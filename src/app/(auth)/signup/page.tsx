@@ -30,6 +30,8 @@ export default function SignupPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [signupEmail, setSignupEmail] = useState("");
 
   const {
     register,
@@ -65,7 +67,6 @@ export default function SignupPage() {
         data: {
           name: data.name,
         },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 
@@ -87,11 +88,27 @@ export default function SignupPage() {
       return;
     }
 
-    // 이메일 확인이 필요한 경우
-    if (authData.user && !authData.session) {
-      router.push("/login?message=이메일을 확인하여 가입을 완료하세요");
+    // Resend를 통해 인증 메일 발송
+    if (authData.user) {
+      const res = await fetch("/api/auth/send-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: data.email,
+          userId: authData.user.id,
+        }),
+      });
+
+      if (!res.ok) {
+        setError("인증 메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        setIsLoading(false);
+        return;
+      }
+
+      setSignupEmail(data.email);
+      setShowEmailModal(true);
+      setIsLoading(false);
     } else {
-      // 이메일 확인 없이 바로 로그인된 경우
       router.refresh();
       router.push("/");
     }
@@ -109,6 +126,59 @@ export default function SignupPage() {
 
   return (
     <div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12">
+      {/* 이메일 인증 안내 모달 */}
+      {showEmailModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="email-verify-title"
+        >
+          <div className="mx-4 w-full max-w-sm rounded-xl bg-white p-8 text-center shadow-xl">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-100">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-7 w-7 text-blue-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+              </svg>
+            </div>
+            <h2
+              id="email-verify-title"
+              className="mb-2 text-xl font-bold text-gray-900"
+            >
+              이메일 인증을 완료해주세요
+            </h2>
+            <p className="mb-1 text-sm text-gray-600">
+              <span className="font-medium text-gray-900">{signupEmail}</span>
+              (으)로
+            </p>
+            <p className="mb-6 text-sm text-gray-600">
+              인증 메일을 발송했습니다. 메일함을 확인해주세요.
+            </p>
+            <Button
+              type="button"
+              className="w-full"
+              onClick={() => router.push("/login")}
+            >
+              로그인 페이지로 이동
+            </Button>
+            <p className="mt-3 text-xs text-gray-400">
+              메일이 오지 않으면 스팸함을 확인해주세요
+            </p>
+          </div>
+        </div>
+      )}
+
       <Card className="w-full max-w-md">
         <CardContent className="p-8">
           <div className="mb-8 text-center">

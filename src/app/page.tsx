@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { ArrowRight, BookOpen, Play, Users } from "lucide-react";
 import { Button } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
 import { LectureCard } from "@/components/lectures";
 import { CurriculumCard } from "@/components/curriculum";
+import { EmailVerifiedModal } from "@/components/ui/email-verified-modal";
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -75,6 +77,9 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col">
+      <Suspense fallback={null}>
+        <EmailVerifiedModal />
+      </Suspense>
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-600 to-blue-800 py-20 text-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
