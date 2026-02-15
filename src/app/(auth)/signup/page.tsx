@@ -100,6 +100,8 @@ export default function SignupPage() {
       });
 
       if (!res.ok) {
+        // 메일 발송 실패 시 세션 정리 (미인증 상태로 로그인 방지)
+        await supabase.auth.signOut();
         setError("인증 메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.");
         setIsLoading(false);
         return;
@@ -107,6 +109,8 @@ export default function SignupPage() {
 
       setSignupEmail(data.email);
       setShowEmailModal(true);
+      // 이메일 인증 전까지 로그인 방지
+      await supabase.auth.signOut();
       setIsLoading(false);
     } else {
       router.refresh();
