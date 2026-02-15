@@ -40,8 +40,15 @@ export function useAuth() {
         }
 
         setUser(profile);
-        // 이메일 인증 상태 확인
-        setEmailVerified(!!session.user.email_confirmed_at);
+        // 이메일 인증 상태 확인 (profiles 테이블의 email_verified 기준)
+        const verified = profile.email_verified;
+        setEmailVerified(verified);
+
+        // 미인증 사용자는 자동 로그아웃
+        if (!verified) {
+          await forceLogout();
+          return;
+        }
       } else {
         setUser(null);
         setEmailVerified(true);
