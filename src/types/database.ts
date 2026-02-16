@@ -430,6 +430,82 @@ export interface Database {
           },
         ];
       };
+      curriculums: {
+        Row: {
+          id: string;
+          title: string;
+          description: string | null;
+          thumbnail_url: string | null;
+          difficulty: "beginner" | "intermediate" | "advanced";
+          is_featured: boolean;
+          is_published: boolean;
+          order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          description?: string | null;
+          thumbnail_url?: string | null;
+          difficulty?: "beginner" | "intermediate" | "advanced";
+          is_featured?: boolean;
+          is_published?: boolean;
+          order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          title?: string;
+          description?: string | null;
+          thumbnail_url?: string | null;
+          difficulty?: "beginner" | "intermediate" | "advanced";
+          is_featured?: boolean;
+          is_published?: boolean;
+          order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      curriculum_lectures: {
+        Row: {
+          id: string;
+          curriculum_id: string;
+          lecture_id: string;
+          order: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          curriculum_id: string;
+          lecture_id: string;
+          order?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          curriculum_id?: string;
+          lecture_id?: string;
+          order?: number;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "curriculum_lectures_curriculum_id_fkey";
+            columns: ["curriculum_id"];
+            referencedRelation: "curriculums";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "curriculum_lectures_lecture_id_fkey";
+            columns: ["lecture_id"];
+            referencedRelation: "lectures";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       email_verification_tokens: {
         Row: {
           id: string;
@@ -496,6 +572,8 @@ export type Category = Tables<"categories">;
 export type Video = Tables<"videos">;
 export type Lecture = Tables<"lectures">;
 export type LectureVideo = Tables<"lecture_videos">;
+export type Curriculum = Tables<"curriculums">;
+export type CurriculumLecture = Tables<"curriculum_lectures">;
 export type WatchHistory = Tables<"watch_history">;
 export type Favorite = Tables<"favorites">;
 export type Note = Tables<"notes">;
@@ -511,11 +589,14 @@ export type LectureWithVideos = Lecture & {
   videos: (LectureVideo & { video: Video })[];
 };
 
+export type CurriculumWithLectures = Curriculum & {
+  curriculum_lectures: (CurriculumLecture & {
+    lecture: Lecture & {
+      lecture_videos: (LectureVideo & { video: Video })[];
+    };
+  })[];
+};
+
 export type NoteWithVideo = Note & {
   video: Video;
 };
-
-// Backward compatibility aliases
-export type Curriculum = Lecture;
-export type CurriculumLecture = LectureVideo;
-export type CurriculumWithLectures = LectureWithVideos;

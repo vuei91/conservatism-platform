@@ -10,7 +10,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { getDifficultyLabel } from "@/lib/utils";
 
 export default function AdminCurriculumsPage() {
-  const { data: curriculums = [], isLoading } = useCurriculums();
+  const { data: curriculums = [], isLoading } = useCurriculums({
+    includeUnpublished: true,
+  });
   const queryClient = useQueryClient();
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -19,7 +21,7 @@ export default function AdminCurriculumsPage() {
 
     setDeletingId(id);
     const supabase = createClient();
-    await supabase.from("lectures").delete().eq("id", id);
+    await supabase.from("curriculums").delete().eq("id", id);
     queryClient.invalidateQueries({ queryKey: ["curriculums"] });
     setDeletingId(null);
   };
@@ -27,7 +29,7 @@ export default function AdminCurriculumsPage() {
   const togglePublish = async (id: string, currentStatus: boolean) => {
     const supabase = createClient();
     await supabase
-      .from("lectures")
+      .from("curriculums")
       .update({ is_published: !currentStatus })
       .eq("id", id);
     queryClient.invalidateQueries({ queryKey: ["curriculums"] });
@@ -36,7 +38,7 @@ export default function AdminCurriculumsPage() {
   const toggleFeatured = async (id: string, currentStatus: boolean) => {
     const supabase = createClient();
     await supabase
-      .from("lectures")
+      .from("curriculums")
       .update({ is_featured: !currentStatus })
       .eq("id", id);
     queryClient.invalidateQueries({ queryKey: ["curriculums"] });
@@ -47,7 +49,9 @@ export default function AdminCurriculumsPage() {
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">커리큘럼 관리</h1>
-          <p className="mt-2 text-gray-600">커리큘럼을 생성하고 관리하세요</p>
+          <p className="mt-2 text-gray-600">
+            강의를 묶어 커리큘럼을 만들고 관리하세요
+          </p>
         </div>
         <Link href="/admin/curriculums/new">
           <Button>
@@ -84,7 +88,7 @@ export default function AdminCurriculumsPage() {
                   href={`/admin/curriculums/${curriculum.id}/edit`}
                   className="flex flex-1 items-center gap-4 min-w-0"
                 >
-                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-blue-100">
                     <BookOpen className="h-6 w-6 text-blue-600" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -103,6 +107,8 @@ export default function AdminCurriculumsPage() {
                       <span>{getDifficultyLabel(curriculum.difficulty)}</span>
                       <span>•</span>
                       <span>{curriculum.lectureCount}개 강의</span>
+                      <span>•</span>
+                      <span>{curriculum.totalVideoCount}개 영상</span>
                     </div>
                   </div>
                 </Link>

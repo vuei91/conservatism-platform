@@ -2,12 +2,12 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
-import type { Video } from "@/types/database";
 
 export function useCurriculums(options?: {
   difficulty?: string;
   featured?: boolean;
   limit?: number;
+  includeUnpublished?: boolean;
 }) {
   const supabase = createClient();
 
@@ -15,19 +15,30 @@ export function useCurriculums(options?: {
     queryKey: ["curriculums", options],
     queryFn: async () => {
       let query = supabase
-        .from("lectures")
+        .from("curriculums")
         .select(
           `
           *,
-          lecture_videos(
+          curriculum_lectures(
             id,
             order,
-            video:videos(duration, youtube_id, thumbnail_url)
+            lecture:lectures(
+              id,
+              title,
+              thumbnail_url,
+              lecture_videos(
+                id,
+                video:videos(duration, youtube_id, thumbnail_url)
+              )
+            )
           )
         `,
         )
-        .eq("is_published", true)
         .order("order", { ascending: true });
+
+      if (!options?.includeUnpublished) {
+        query = query.eq("is_published", true);
+      }
 
       if (options?.difficulty) {
         query = query.eq(
@@ -45,40 +56,60 @@ export function useCurriculums(options?: {
       const { data, error } = await query;
       if (error) throw error;
 
-      return data.map((lecture) => {
-        const sortedVideos =
-          lecture.lecture_videos?.sort(
+      return data.map((curriculum) => {
+        const sortedLectures =
+          curriculum.curriculum_lectures?.sort(
             (a: { order: number }, b: { order: number }) => a.order - b.order,
           ) || [];
 
-        const thumbnails = sortedVideos
-          .slice(0, 4)
-          .map(
-            (lv: {
-              video: {
-                youtube_id: string;
-                thumbnail_url: string | null;
+        const lectureCount = sortedLectures.length;
+
+        const totalVideoCount = sortedLectures.reduce(
+          (
+            acc: number,
+            cl: { lecture: { lecture_videos?: unknown[] } | null },
+          ) => acc + (cl.lecture?.lecture_videos?.length || 0),
+          0,
+        );
+
+        const totalDuration = sortedLectures.reduce(
+          (
+            acc: number,
+            cl: {
+              lecture: {
+                lecture_videos?: {
+                  video: { duration: number | null } | null;
+                }[];
               } | null;
-            }) =>
-              lv.video?.thumbnail_url ||
-              (lv.video?.youtube_id
-                ? `https://img.youtube.com/vi/${lv.video.youtube_id}/mqdefault.jpg`
-                : null),
-          )
-          .filter(Boolean);
+            },
+          ) =>
+            acc +
+            (cl.lecture?.lecture_videos?.reduce(
+              (
+                vAcc: number,
+                lv: { video: { duration: number | null } | null },
+              ) => vAcc + (lv.video?.duration || 0),
+              0,
+            ) || 0),
+          0,
+        );
+
+        // 첫 번째 강의의 첫 번째 영상 썸네일
+        const firstLecture = sortedLectures[0]?.lecture;
+        const firstVideo = firstLecture?.lecture_videos?.[0]?.video;
+        const thumbnail =
+          curriculum.thumbnail_url ||
+          firstVideo?.thumbnail_url ||
+          (firstVideo?.youtube_id
+            ? `https://img.youtube.com/vi/${firstVideo.youtube_id}/mqdefault.jpg`
+            : null);
 
         return {
-          ...lecture,
-          lectureCount: lecture.lecture_videos?.length || 0,
-          totalDuration:
-            lecture.lecture_videos?.reduce(
-              (
-                acc: number,
-                lv: { video: { duration: number | null } | null },
-              ) => acc + (lv.video?.duration || 0),
-              0,
-            ) || 0,
-          thumbnails,
+          ...curriculum,
+          lectureCount,
+          totalVideoCount,
+          totalDuration,
+          thumbnail,
         };
       });
     },
@@ -92,14 +123,21 @@ export function useCurriculum(id: string) {
     queryKey: ["curriculum", id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("lectures")
+        .from("curriculums")
         .select(
           `
           *,
-          lecture_videos(
+          curriculum_lectures(
             id,
             order,
-            video:videos(*)
+            lecture:lectures(
+              *,
+              lecture_videos(
+                id,
+                order,
+                video:videos(*)
+              )
+            )
           )
         `,
         )
@@ -108,20 +146,48 @@ export function useCurriculum(id: string) {
 
       if (error) throw error;
 
-      const sortedVideos = data.lecture_videos?.sort(
+      const sortedLectures = data.curriculum_lectures?.sort(
         (a: { order: number }, b: { order: number }) => a.order - b.order,
       );
 
+      const totalVideoCount =
+        sortedLectures?.reduce(
+          (
+            acc: number,
+            cl: { lecture: { lecture_videos?: unknown[] } | null },
+          ) => acc + (cl.lecture?.lecture_videos?.length || 0),
+          0,
+        ) || 0;
+
+      const totalDuration =
+        sortedLectures?.reduce(
+          (
+            acc: number,
+            cl: {
+              lecture: {
+                lecture_videos?: {
+                  video: { duration: number | null } | null;
+                }[];
+              } | null;
+            },
+          ) =>
+            acc +
+            (cl.lecture?.lecture_videos?.reduce(
+              (
+                vAcc: number,
+                lv: { video: { duration: number | null } | null },
+              ) => vAcc + (lv.video?.duration || 0),
+              0,
+            ) || 0),
+          0,
+        ) || 0;
+
       return {
         ...data,
-        lecture_videos: sortedVideos,
-        lectureCount: sortedVideos?.length || 0,
-        totalDuration:
-          sortedVideos?.reduce(
-            (acc: number, lv: { video: Video | null }) =>
-              acc + (lv.video?.duration || 0),
-            0,
-          ) || 0,
+        curriculum_lectures: sortedLectures,
+        lectureCount: sortedLectures?.length || 0,
+        totalVideoCount,
+        totalDuration,
       };
     },
     enabled: !!id,

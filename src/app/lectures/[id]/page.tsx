@@ -4,17 +4,27 @@ import { LecturePlayer } from "./lecture-player";
 
 interface PageProps {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ curriculum?: string }>;
+  searchParams: Promise<{ v?: string; curriculum?: string }>;
 }
 
 export default async function LecturePage({ params, searchParams }: PageProps) {
   const { id } = await params;
-  const { curriculum: curriculumId } = await searchParams;
+  const { v: videoId, curriculum: curriculumId } = await searchParams;
   const supabase = await createClient();
 
+  // 강의(lectures 테이블) 조회 + 포함된 영상들
   const { data: lecture, error } = await supabase
-    .from("videos")
-    .select("*, category:categories(*)")
+    .from("lectures")
+    .select(
+      `
+      *,
+      lecture_videos(
+        id,
+        order,
+        video:videos(*, category:categories(*))
+      )
+    `,
+    )
     .eq("id", id)
     .single();
 
@@ -22,57 +32,51 @@ export default async function LecturePage({ params, searchParams }: PageProps) {
     notFound();
   }
 
-  // Get related videos
-  let relatedLectures: (typeof lecture)[] = [];
-  if (lecture.category_id) {
-    const { data } = await supabase
-      .from("videos")
-      .select("*, category:categories(*)")
-      .eq("is_published", true)
-      .eq("category_id", lecture.category_id)
-      .neq("id", id)
-      .limit(4);
-    relatedLectures = data || [];
+  const sortedVideos =
+    lecture.lecture_videos?.sort(
+      (a: { order: number }, b: { order: number }) => a.order - b.order,
+    ) || [];
+
+  // 현재 재생할 영상 결정
+  const activeVideo = videoId
+    ? sortedVideos.find(
+        (lv: { video: { id: string } | null }) => lv.video?.id === videoId,
+      )?.video
+    : sortedVideos[0]?.video;
+
+  if (!activeVideo) {
+    notFound();
   }
 
-  // Get lectures (curriculums) containing this video
-  const { data: curriculumData } = await supabase
-    .from("lecture_videos")
-    .select("curriculum:lectures(*)")
-    .eq("video_id", id);
+  // 관련 강의 (같은 난이도)
+  const { data: relatedData } = await supabase
+    .from("lectures")
+    .select(
+      "*, lecture_videos(id, video:videos(thumbnail_url, youtube_id, duration))",
+    )
+    .eq("is_published", true)
+    .eq("difficulty", lecture.difficulty)
+    .neq("id", id)
+    .limit(4);
 
-  const curriculums =
-    curriculumData?.map((lv) => lv.curriculum).filter(Boolean) || [];
-
-  // Get lecture videos if curriculumId is provided
-  let curriculumLectures: {
-    id: string;
-    order: number;
-    lecture: typeof lecture;
-  }[] = [];
-  let activeCurriculum: (typeof curriculums)[0] | null = null;
-
-  if (curriculumId) {
-    const { data: lvData } = await supabase
-      .from("lecture_videos")
-      .select("id, order, lecture:videos(*, category:categories(*))")
-      .eq("lecture_id", curriculumId)
-      .order("order", { ascending: true });
-
-    if (lvData) {
-      curriculumLectures = lvData as typeof curriculumLectures;
-    }
-
-    activeCurriculum = curriculums.find((c) => c?.id === curriculumId) || null;
-  }
+  const relatedLectures = (relatedData || []).map((l) => ({
+    ...l,
+    lectureCount: l.lecture_videos?.length || 0,
+    totalDuration:
+      l.lecture_videos?.reduce(
+        (acc: number, lv: { video: { duration: number | null } | null }) =>
+          acc + (lv.video?.duration || 0),
+        0,
+      ) || 0,
+  }));
 
   return (
     <LecturePlayer
       lecture={lecture}
+      sortedVideos={sortedVideos}
+      activeVideo={activeVideo}
       relatedLectures={relatedLectures}
-      curriculums={curriculums}
-      curriculumLectures={curriculumLectures}
-      activeCurriculum={activeCurriculum}
+      curriculumId={curriculumId}
     />
   );
 }

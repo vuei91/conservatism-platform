@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { CurriculumCard } from "@/components/curriculum";
+import { LectureListCard } from "@/components/lectures";
 import { LecturesContent } from "./lectures-content";
 
 const PAGE_SIZE = 12;
@@ -142,7 +142,7 @@ export default async function LecturesPage({ searchParams }: PageProps) {
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {lectures.map((lecture) => (
-              <CurriculumCard key={lecture.id} curriculum={lecture} />
+              <LectureListCard key={lecture.id} lecture={lecture} />
             ))}
           </div>
         )}

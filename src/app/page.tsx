@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { ArrowRight, BookOpen, Play, Users } from "lucide-react";
 import { Button } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
-import { CurriculumCard } from "@/components/curriculum";
+import { LectureListCard } from "@/components/lectures";
 import { EmailVerifiedModal } from "@/components/ui/email-verified-modal";
 
 export default async function HomePage() {
@@ -135,7 +135,7 @@ export default async function HomePage() {
             </div>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {curriculums.map((curriculum) => (
-                <CurriculumCard key={curriculum.id} curriculum={curriculum} />
+                <LectureListCard key={curriculum.id} lecture={curriculum} />
               ))}
             </div>
           </div>

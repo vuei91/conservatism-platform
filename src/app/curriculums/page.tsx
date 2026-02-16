@@ -17,14 +17,22 @@ export default async function CurriculumsPage({ searchParams }: PageProps) {
   const supabase = await createClient();
 
   let query = supabase
-    .from("lectures")
+    .from("curriculums")
     .select(
       `
       *,
-      lecture_videos(
+      curriculum_lectures(
         id,
         order,
-        video:videos(duration, youtube_id, thumbnail_url)
+        lecture:lectures(
+          id,
+          title,
+          thumbnail_url,
+          lecture_videos(
+            id,
+            video:videos(duration, youtube_id, thumbnail_url)
+          )
+        )
       )
     `,
       { count: "exact" },
@@ -47,34 +55,45 @@ export default async function CurriculumsPage({ searchParams }: PageProps) {
   const totalPages = Math.ceil((count || 0) / PAGE_SIZE);
 
   const curriculums = (data || []).map((c) => {
-    const sortedVideos =
-      c.lecture_videos?.sort(
+    const sortedLectures =
+      c.curriculum_lectures?.sort(
         (a: { order: number }, b: { order: number }) => a.order - b.order,
       ) || [];
 
-    const thumbnails = sortedVideos
-      .slice(0, 4)
-      .map(
-        (lv: {
-          video: { youtube_id: string; thumbnail_url: string | null } | null;
-        }) =>
-          lv.video?.thumbnail_url ||
-          (lv.video?.youtube_id
-            ? `https://img.youtube.com/vi/${lv.video.youtube_id}/mqdefault.jpg`
-            : null),
-      )
-      .filter(Boolean) as string[];
+    const lectureCount = sortedLectures.length;
+
+    const totalDuration = sortedLectures.reduce(
+      (
+        acc: number,
+        cl: {
+          lecture: {
+            lecture_videos?: { video: { duration: number | null } | null }[];
+          } | null;
+        },
+      ) =>
+        acc +
+        (cl.lecture?.lecture_videos?.reduce(
+          (vAcc: number, lv: { video: { duration: number | null } | null }) =>
+            vAcc + (lv.video?.duration || 0),
+          0,
+        ) || 0),
+      0,
+    );
+
+    const firstLecture = sortedLectures[0]?.lecture;
+    const firstVideo = firstLecture?.lecture_videos?.[0]?.video;
+    const thumbnail =
+      c.thumbnail_url ||
+      firstVideo?.thumbnail_url ||
+      (firstVideo?.youtube_id
+        ? `https://img.youtube.com/vi/${firstVideo.youtube_id}/mqdefault.jpg`
+        : null);
 
     return {
       ...c,
-      lectureCount: c.lecture_videos?.length || 0,
-      totalDuration:
-        c.lecture_videos?.reduce(
-          (acc: number, lv: { video: { duration: number | null } | null }) =>
-            acc + (lv.video?.duration || 0),
-          0,
-        ) || 0,
-      thumbnails,
+      lectureCount,
+      totalDuration,
+      thumbnail,
     };
   });
 

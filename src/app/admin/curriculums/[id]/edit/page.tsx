@@ -15,10 +15,9 @@ import {
   Badge,
 } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
-import { useLectures } from "@/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { getDifficultyLabel } from "@/lib/utils";
-import type { Video, Category } from "@/types/database";
+import type { Lecture } from "@/types/database";
 
 const curriculumSchema = z.object({
   title: z.string().min(1, "제목을 입력하세요"),
@@ -30,11 +29,11 @@ const curriculumSchema = z.object({
 
 type CurriculumForm = z.infer<typeof curriculumSchema>;
 
-interface CurriculumLecture {
+interface CurriculumLectureItem {
   id: string;
-  video_id: string;
+  lecture_id: string;
   order: number;
-  lecture: Video & { category: Category | null };
+  lecture: Lecture & { videoCount?: number };
 }
 
 interface PageProps {
@@ -44,18 +43,20 @@ interface PageProps {
 export default function EditCurriculumPage({ params }: PageProps) {
   const { id } = use(params);
   const router = useRouter();
-  const { data: allLectures = [] } = useLectures({ includeUnpublished: true });
   const queryClient = useQueryClient();
 
   const [isLoading, setIsLoading] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [curriculumLectures, setCurriculumLectures] = useState<
-    CurriculumLecture[]
+    CurriculumLectureItem[]
   >([]);
-  const [originalLectureIds, setOriginalLectureIds] = useState<string[]>([]);
-  const [showLectureSelector, setShowLectureSelector] = useState(false);
-  const [selectedLectureIds, setSelectedLectureIds] = useState<string[]>([]);
+  const [originalIds, setOriginalIds] = useState<string[]>([]);
+  const [allLectures, setAllLectures] = useState<
+    (Lecture & { videoCount: number })[]
+  >([]);
+  const [showSelector, setShowSelector] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [dropPosition, setDropPosition] = useState<"above" | "below" | null>(
@@ -77,31 +78,26 @@ export default function EditCurriculumPage({ params }: PageProps) {
     const handleScroll = () => {
       const footer = document.querySelector("footer");
       if (!footer || !buttonAreaRef.current) return;
-
       const footerRect = footer.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-
-      // footer가 화면에 보이기 시작하면 fixed 해제
-      setIsButtonFixed(footerRect.top > windowHeight);
+      setIsButtonFixed(footerRect.top > window.innerHeight);
     };
-
     window.addEventListener("scroll", handleScroll);
     handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
-    const fetchCurriculum = async () => {
+    const fetchData = async () => {
       const supabase = createClient();
 
-      // 커리큘럼 정보 가져오기
-      const { data: curriculum, error: currError } = await supabase
-        .from("lectures")
+      // 커리큘럼 정보
+      const { data: curriculum, error: currErr } = await supabase
+        .from("curriculums")
         .select("*")
         .eq("id", id)
         .single();
 
-      if (currError || !curriculum) {
+      if (currErr || !curriculum) {
         setError("커리큘럼을 찾을 수 없습니다");
         setIsDataLoading(false);
         return;
@@ -118,33 +114,54 @@ export default function EditCurriculumPage({ params }: PageProps) {
         is_featured: curriculum.is_featured,
       });
 
-      // 커리큘럼에 포함된 강의 가져오기
-      const { data: lectures } = await supabase
-        .from("lecture_videos")
-        .select("*, lecture:videos(*, category:categories(*))")
-        .eq("lecture_id", id)
+      // 커리큘럼에 포함된 강의
+      const { data: clData } = await supabase
+        .from("curriculum_lectures")
+        .select("*, lecture:lectures(*, lecture_videos(id))")
+        .eq("curriculum_id", id)
         .order("order", { ascending: true });
 
-      if (lectures) {
-        setCurriculumLectures(lectures as CurriculumLecture[]);
-        setOriginalLectureIds(lectures.map((l) => l.id));
+      if (clData) {
+        const mapped = clData.map((cl) => ({
+          id: cl.id,
+          lecture_id: cl.lecture_id,
+          order: cl.order,
+          lecture: {
+            ...cl.lecture,
+            videoCount: cl.lecture?.lecture_videos?.length || 0,
+          },
+        })) as CurriculumLectureItem[];
+        setCurriculumLectures(mapped);
+        setOriginalIds(mapped.map((m) => m.id));
+      }
+
+      // 모든 강의 목록
+      const { data: lecturesData } = await supabase
+        .from("lectures")
+        .select("*, lecture_videos(id)")
+        .order("order", { ascending: true });
+
+      if (lecturesData) {
+        setAllLectures(
+          lecturesData.map((l) => ({
+            ...l,
+            videoCount: l.lecture_videos?.length || 0,
+          })),
+        );
       }
 
       setIsDataLoading(false);
     };
-
-    fetchCurriculum();
+    fetchData();
   }, [id, reset]);
 
   const onSubmit = async (data: CurriculumForm) => {
     setIsLoading(true);
     setError(null);
-
     const supabase = createClient();
 
-    // 커리큘럼 정보 업데이트
     const { error } = await supabase
-      .from("lectures")
+      .from("curriculums")
       .update({
         title: data.title,
         description: data.description || null,
@@ -161,37 +178,29 @@ export default function EditCurriculumPage({ params }: PageProps) {
       return;
     }
 
-    // 현재 강의 ID 목록
-    const currentLectureIds = curriculumLectures.map((cl) => cl.id);
-
-    // 삭제할 강의 (원본에 있었지만 현재 없는 것)
-    const toDelete = originalLectureIds.filter(
-      (origId) => !currentLectureIds.includes(origId),
+    const currentIds = curriculumLectures.map((cl) => cl.id);
+    const toDelete = originalIds.filter(
+      (origId) => !currentIds.includes(origId),
     );
-
-    // 추가할 강의 (원본에 없었지만 현재 있는 것 - id가 temp_로 시작)
     const toAdd = curriculumLectures.filter((cl) => cl.id.startsWith("temp_"));
 
-    // 삭제 처리
     for (const deleteId of toDelete) {
-      await supabase.from("lecture_videos").delete().eq("id", deleteId);
+      await supabase.from("curriculum_lectures").delete().eq("id", deleteId);
     }
 
-    // 추가 처리
-    for (const lecture of toAdd) {
-      await supabase.from("lecture_videos").insert({
-        lecture_id: id,
-        video_id: lecture.video_id,
-        order: curriculumLectures.indexOf(lecture),
+    for (const item of toAdd) {
+      await supabase.from("curriculum_lectures").insert({
+        curriculum_id: id,
+        lecture_id: item.lecture_id,
+        order: curriculumLectures.indexOf(item),
       });
     }
 
-    // 기존 강의 순서 업데이트
     for (let i = 0; i < curriculumLectures.length; i++) {
       const cl = curriculumLectures[i];
       if (!cl.id.startsWith("temp_")) {
         await supabase
-          .from("lecture_videos")
+          .from("curriculum_lectures")
           .update({ order: i })
           .eq("id", cl.id);
       }
@@ -202,63 +211,49 @@ export default function EditCurriculumPage({ params }: PageProps) {
   };
 
   const addLectures = () => {
-    if (selectedLectureIds.length === 0) return;
-
-    const newLectures: CurriculumLecture[] = selectedLectureIds.map(
+    if (selectedIds.length === 0) return;
+    const newItems: CurriculumLectureItem[] = selectedIds.map(
       (lectureId, index) => {
         const lecture = allLectures.find((l) => l.id === lectureId);
         return {
           id: `temp_${Date.now()}_${index}`,
-          video_id: lectureId,
+          lecture_id: lectureId,
           order: curriculumLectures.length + index,
-          lecture: lecture as Video & { category: Category | null },
+          lecture: lecture as Lecture & { videoCount: number },
         };
       },
     );
-
-    setCurriculumLectures([...curriculumLectures, ...newLectures]);
-    setSelectedLectureIds([]);
-    setShowLectureSelector(false);
+    setCurriculumLectures([...curriculumLectures, ...newItems]);
+    setSelectedIds([]);
+    setShowSelector(false);
   };
 
-  const toggleLectureSelection = (lectureId: string) => {
-    setSelectedLectureIds((prev) =>
+  const toggleSelection = (lectureId: string) => {
+    setSelectedIds((prev) =>
       prev.includes(lectureId)
         ? prev.filter((id) => id !== lectureId)
         : [...prev, lectureId],
     );
   };
 
-  const removeLecture = (curriculumLectureId: string) => {
-    setCurriculumLectures(
-      curriculumLectures.filter((cl) => cl.id !== curriculumLectureId),
-    );
+  const removeLecture = (clId: string) => {
+    setCurriculumLectures(curriculumLectures.filter((cl) => cl.id !== clId));
   };
 
-  const handleDragStart = (index: number) => {
-    setDraggedIndex(index);
-  };
+  const handleDragStart = (index: number) => setDraggedIndex(index);
 
   const handleDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     if (draggedIndex === null || draggedIndex === index) return;
-
     const rect = e.currentTarget.getBoundingClientRect();
     const midY = rect.top + rect.height / 2;
-    const position = e.clientY < midY ? "above" : "below";
-
     setDragOverIndex(index);
-    setDropPosition(position);
+    setDropPosition(e.clientY < midY ? "above" : "below");
 
-    // 자동 스크롤
     const scrollThreshold = 80;
-    const scrollSpeed = 10;
-
-    if (e.clientY < scrollThreshold) {
-      window.scrollBy(0, -scrollSpeed);
-    } else if (e.clientY > window.innerHeight - scrollThreshold) {
-      window.scrollBy(0, scrollSpeed);
-    }
+    if (e.clientY < scrollThreshold) window.scrollBy(0, -10);
+    else if (e.clientY > window.innerHeight - scrollThreshold)
+      window.scrollBy(0, 10);
   };
 
   const handleDragLeave = () => {
@@ -277,11 +272,8 @@ export default function EditCurriculumPage({ params }: PageProps) {
       setDropPosition(null);
       return;
     }
-
-    const newLectures = [...curriculumLectures];
-    const [draggedItem] = newLectures.splice(draggedIndex, 1);
-
-    // 삽입 위치 계산
+    const newList = [...curriculumLectures];
+    const [draggedItem] = newList.splice(draggedIndex, 1);
     let insertIndex = dragOverIndex;
     if (dropPosition === "below") {
       insertIndex =
@@ -290,17 +282,14 @@ export default function EditCurriculumPage({ params }: PageProps) {
       insertIndex =
         draggedIndex < dragOverIndex ? dragOverIndex - 1 : dragOverIndex;
     }
-
-    newLectures.splice(insertIndex, 0, draggedItem);
-
-    setCurriculumLectures(newLectures);
+    newList.splice(insertIndex, 0, draggedItem);
+    setCurriculumLectures(newList);
     setDraggedIndex(null);
     setDragOverIndex(null);
     setDropPosition(null);
   };
 
-  // 이미 추가된 강의 ID 목록
-  const addedLectureIds = curriculumLectures.map((cl) => cl.video_id);
+  const addedLectureIds = curriculumLectures.map((cl) => cl.lecture_id);
   const availableLectures = allLectures.filter(
     (l) => !addedLectureIds.includes(l.id),
   );
@@ -345,7 +334,6 @@ export default function EditCurriculumPage({ params }: PageProps) {
               {...register("title")}
               error={errors.title?.message}
             />
-
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700">
                 설명
@@ -356,7 +344,6 @@ export default function EditCurriculumPage({ params }: PageProps) {
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
-
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700">
                 난이도 *
@@ -370,7 +357,6 @@ export default function EditCurriculumPage({ params }: PageProps) {
                 <option value="advanced">심화</option>
               </select>
             </div>
-
             <div className="flex items-center gap-6">
               <label className="flex items-center gap-2">
                 <input
@@ -400,7 +386,7 @@ export default function EditCurriculumPage({ params }: PageProps) {
             <h2 className="text-lg font-semibold">
               포함된 강의 ({curriculumLectures.length}개)
             </h2>
-            <Button size="sm" onClick={() => setShowLectureSelector(true)}>
+            <Button size="sm" onClick={() => setShowSelector(true)}>
               <Plus className="mr-1 h-4 w-4" />
               강의 추가
             </Button>
@@ -414,7 +400,6 @@ export default function EditCurriculumPage({ params }: PageProps) {
             <div className="space-y-0">
               {curriculumLectures.map((cl, index) => (
                 <div key={cl.id} className="relative">
-                  {/* 위쪽 삽입 표시선 */}
                   {dragOverIndex === index &&
                     dropPosition === "above" &&
                     draggedIndex !== index && (
@@ -422,7 +407,6 @@ export default function EditCurriculumPage({ params }: PageProps) {
                         <div className="absolute -left-1 -top-1 w-2.5 h-2.5 bg-blue-500 rounded-full" />
                       </div>
                     )}
-
                   <div
                     draggable
                     onDragStart={() => handleDragStart(index)}
@@ -435,7 +419,7 @@ export default function EditCurriculumPage({ params }: PageProps) {
                         : "border-gray-200 hover:border-gray-300"
                     }`}
                   >
-                    <GripVertical className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                    <GripVertical className="h-5 w-5 text-gray-400 shrink-0" />
                     <span className="w-6 text-center text-sm text-gray-500">
                       {index + 1}
                     </span>
@@ -444,13 +428,11 @@ export default function EditCurriculumPage({ params }: PageProps) {
                         {cl.lecture.title}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
-                        {cl.lecture.category && (
-                          <Badge variant="info" className="text-xs">
-                            {cl.lecture.category.name}
-                          </Badge>
-                        )}
                         <span className="text-xs text-gray-500">
                           {getDifficultyLabel(cl.lecture.difficulty)}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          • {cl.lecture.videoCount || 0}개 영상
                         </span>
                       </div>
                     </div>
@@ -462,8 +444,6 @@ export default function EditCurriculumPage({ params }: PageProps) {
                       <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>
                   </div>
-
-                  {/* 아래쪽 삽입 표시선 */}
                   {dragOverIndex === index &&
                     dropPosition === "below" &&
                     draggedIndex !== index && (
@@ -479,15 +459,15 @@ export default function EditCurriculumPage({ params }: PageProps) {
       </Card>
 
       {/* 강의 선택 모달 */}
-      {showLectureSelector && (
+      {showSelector && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="w-full max-w-2xl max-h-[80vh] overflow-hidden rounded-lg bg-white">
             <div className="flex items-center justify-between border-b p-4">
               <div>
                 <h3 className="text-lg font-semibold">강의 추가</h3>
-                {selectedLectureIds.length > 0 && (
+                {selectedIds.length > 0 && (
                   <p className="text-sm text-blue-600">
-                    {selectedLectureIds.length}개 선택됨
+                    {selectedIds.length}개 선택됨
                   </p>
                 )}
               </div>
@@ -496,8 +476,8 @@ export default function EditCurriculumPage({ params }: PageProps) {
                   variant="ghost"
                   size="sm"
                   onClick={() => {
-                    setSelectedLectureIds([]);
-                    setShowLectureSelector(false);
+                    setSelectedIds([]);
+                    setShowSelector(false);
                   }}
                 >
                   취소
@@ -505,9 +485,9 @@ export default function EditCurriculumPage({ params }: PageProps) {
                 <Button
                   size="sm"
                   onClick={addLectures}
-                  disabled={selectedLectureIds.length === 0}
+                  disabled={selectedIds.length === 0}
                 >
-                  추가 ({selectedLectureIds.length})
+                  추가 ({selectedIds.length})
                 </Button>
               </div>
             </div>
@@ -519,11 +499,11 @@ export default function EditCurriculumPage({ params }: PageProps) {
               ) : (
                 <div className="space-y-2">
                   {availableLectures.map((lecture) => {
-                    const isSelected = selectedLectureIds.includes(lecture.id);
+                    const isSelected = selectedIds.includes(lecture.id);
                     return (
                       <button
                         key={lecture.id}
-                        onClick={() => toggleLectureSelection(lecture.id)}
+                        onClick={() => toggleSelection(lecture.id)}
                         className={`w-full text-left rounded-lg border p-3 transition-colors ${
                           isSelected
                             ? "border-blue-500 bg-blue-50"
@@ -532,7 +512,7 @@ export default function EditCurriculumPage({ params }: PageProps) {
                       >
                         <div className="flex items-center gap-3">
                           <div
-                            className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                            className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 ${
                               isSelected
                                 ? "border-blue-500 bg-blue-500"
                                 : "border-gray-300"
@@ -559,13 +539,11 @@ export default function EditCurriculumPage({ params }: PageProps) {
                               {lecture.title}
                             </p>
                             <div className="flex items-center gap-2 mt-1">
-                              {lecture.category && (
-                                <Badge variant="info" className="text-xs">
-                                  {lecture.category.name}
-                                </Badge>
-                              )}
                               <span className="text-xs text-gray-500">
                                 {getDifficultyLabel(lecture.difficulty)}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                • {lecture.videoCount}개 영상
                               </span>
                               {!lecture.is_published && (
                                 <Badge variant="warning" className="text-xs">
