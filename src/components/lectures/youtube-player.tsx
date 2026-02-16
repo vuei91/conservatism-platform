@@ -19,10 +19,18 @@ export function YouTubePlayer({ videoId, onTimeUpdate }: YouTubePlayerProps) {
   const playerRef = useRef<YT.Player | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const { setCurrentTime, setDuration, setIsPlaying } = usePlayerStore();
+  const onTimeUpdateRef = useRef(onTimeUpdate);
+
+  // Keep the ref in sync without triggering re-init
+  useEffect(() => {
+    onTimeUpdateRef.current = onTimeUpdate;
+  }, [onTimeUpdate]);
 
   const initPlayer = useCallback(() => {
     if (!containerRef.current || playerRef.current) return;
+
+    const { setCurrentTime, setDuration, setIsPlaying } =
+      usePlayerStore.getState();
 
     playerRef.current = new window.YT.Player(containerRef.current, {
       videoId,
@@ -35,28 +43,29 @@ export function YouTubePlayer({ videoId, onTimeUpdate }: YouTubePlayerProps) {
       },
       events: {
         onReady: (event) => {
-          setDuration(event.target.getDuration());
+          usePlayerStore.getState().setDuration(event.target.getDuration());
         },
         onStateChange: (event) => {
           const isPlaying = event.data === window.YT.PlayerState.PLAYING;
-          setIsPlaying(isPlaying);
+          usePlayerStore.getState().setIsPlaying(isPlaying);
+
+          // 항상 기존 interval 정리
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
 
           if (isPlaying) {
             intervalRef.current = setInterval(() => {
               const time = playerRef.current?.getCurrentTime() || 0;
-              setCurrentTime(time);
-              onTimeUpdate?.(time);
+              usePlayerStore.getState().setCurrentTime(time);
+              onTimeUpdateRef.current?.(time);
             }, 1000);
-          } else {
-            if (intervalRef.current) {
-              clearInterval(intervalRef.current);
-              intervalRef.current = null;
-            }
           }
         },
       },
     });
-  }, [videoId, setCurrentTime, setDuration, setIsPlaying, onTimeUpdate]);
+  }, [videoId]);
 
   useEffect(() => {
     if (window.YT && window.YT.Player) {

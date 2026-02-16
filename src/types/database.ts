@@ -214,6 +214,8 @@ export interface Database {
           id: string;
           user_id: string;
           video_id: string;
+          lecture_id: string | null;
+          curriculum_id: string | null;
           progress: number;
           is_completed: boolean;
           last_watched_at: string;
@@ -223,6 +225,8 @@ export interface Database {
           id?: string;
           user_id: string;
           video_id: string;
+          lecture_id?: string | null;
+          curriculum_id?: string | null;
           progress?: number;
           is_completed?: boolean;
           last_watched_at?: string;
@@ -232,6 +236,8 @@ export interface Database {
           id?: string;
           user_id?: string;
           video_id?: string;
+          lecture_id?: string | null;
+          curriculum_id?: string | null;
           progress?: number;
           is_completed?: boolean;
           last_watched_at?: string;
@@ -248,6 +254,18 @@ export interface Database {
             foreignKeyName: "watch_history_video_id_fkey";
             columns: ["video_id"];
             referencedRelation: "videos";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "watch_history_lecture_id_fkey";
+            columns: ["lecture_id"];
+            referencedRelation: "lectures";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "watch_history_curriculum_id_fkey";
+            columns: ["curriculum_id"];
+            referencedRelation: "curriculums";
             referencedColumns: ["id"];
           },
         ];

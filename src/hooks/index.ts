@@ -13,3 +13,8 @@ export {
   useUpdateNote,
   useDeleteNote,
 } from "./use-notes";
+export {
+  useContinueWatching,
+  useUpdateWatchHistory,
+  useWatchProgressTracker,
+} from "./use-watch-history";

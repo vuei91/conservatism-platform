@@ -1,15 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Heart, Clock, Eye, Play, BookOpen } from "lucide-react";
 import { YouTubePlayer } from "@/components/lectures";
 import { Button, Badge, Card, CardContent } from "@/components/ui";
 import { useAuthStore } from "@/stores/auth-store";
+import { usePlayerStore } from "@/stores/player-store";
 import {
   useToggleFavorite,
   useIsFavorite,
   useIncrementViewCount,
+  useWatchProgressTracker,
+  useUpdateWatchHistory,
 } from "@/hooks";
 import {
   formatDuration,
@@ -47,10 +50,66 @@ export function LecturePlayer({
   const { data: isFavorite } = useIsFavorite(activeVideo.id);
   const toggleFavorite = useToggleFavorite();
   const incrementViewCount = useIncrementViewCount();
+  const updateWatchHistory = useUpdateWatchHistory();
+  const trackProgress = useWatchProgressTracker(
+    activeVideo.id,
+    lecture.id,
+    curriculumId,
+  );
 
   useEffect(() => {
     incrementViewCount.mutate(activeVideo.id);
+    // 영상 접근 시 바로 시청 기록 저장
+    if (user) {
+      updateWatchHistory.mutate({
+        videoId: activeVideo.id,
+        lectureId: lecture.id,
+        curriculumId,
+        progress: 0,
+        duration: activeVideo.duration || 0,
+      });
+    }
   }, [activeVideo.id]);
+
+  // 페이지 이탈 시 마지막 재생 위치 저장
+  useEffect(() => {
+    const saveOnLeave = () => {
+      if (!user) return;
+      const { currentTime, duration } = usePlayerStore.getState();
+      if (currentTime > 0) {
+        // sendBeacon으로 비동기 저장 (페이지 닫혀도 전송됨)
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+        if (!supabaseUrl || !supabaseKey) return;
+
+        // fallback: mutation으로 저장 시도
+        updateWatchHistory.mutate({
+          videoId: activeVideo.id,
+          lectureId: lecture.id,
+          curriculumId,
+          progress: currentTime,
+          duration,
+        });
+      }
+    };
+
+    window.addEventListener("beforeunload", saveOnLeave);
+    return () => {
+      saveOnLeave();
+      window.removeEventListener("beforeunload", saveOnLeave);
+    };
+  }, [activeVideo.id, user]);
+
+  const handleTimeUpdate = useCallback(
+    (time: number) => {
+      const currentUser = useAuthStore.getState().user;
+      if (currentUser) {
+        const duration = usePlayerStore.getState().duration;
+        trackProgress(time, duration);
+      }
+    },
+    [trackProgress],
+  );
 
   const handleToggleFavorite = () => {
     if (!user) {
@@ -66,7 +125,10 @@ export function LecturePlayer({
         {/* Main Content */}
         <div className="lg:col-span-2">
           {/* Video Player */}
-          <YouTubePlayer videoId={activeVideo.youtube_id} />
+          <YouTubePlayer
+            videoId={activeVideo.youtube_id}
+            onTimeUpdate={handleTimeUpdate}
+          />
 
           {/* Video Info */}
           <div className="mt-6">

@@ -3,10 +3,10 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { BookOpen, Heart, Clock, FileText, Settings } from "lucide-react";
+import { BookOpen, Heart, Clock, FileText, Settings, Play } from "lucide-react";
 import { Card, CardContent, Button, Skeleton } from "@/components/ui";
 import { useAuthStore } from "@/stores/auth-store";
-import { useFavorites, useNotes } from "@/hooks";
+import { useFavorites, useNotes, useContinueWatching } from "@/hooks";
 import { LectureCard } from "@/components/lectures";
 
 export default function MyPage() {
@@ -14,6 +14,8 @@ export default function MyPage() {
   const { user, isLoading: authLoading } = useAuthStore();
   const { data: favorites = [], isLoading: favoritesLoading } = useFavorites();
   const { data: notes = [], isLoading: notesLoading } = useNotes();
+  const { data: continueWatching = [], isLoading: continueWatchingLoading } =
+    useContinueWatching();
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -93,6 +95,91 @@ export default function MyPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Continue Watching */}
+      <section className="mb-8">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-gray-900">
+            <Play className="mr-2 inline h-5 w-5" />
+            이어보기
+          </h2>
+        </div>
+        {continueWatchingLoading ? (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-40" />
+            ))}
+          </div>
+        ) : continueWatching.length === 0 ? (
+          <Card>
+            <CardContent className="py-8 text-center">
+              <Play className="mx-auto mb-4 h-12 w-12 text-gray-300" />
+              <p className="text-gray-500">시청 중인 강의가 없습니다.</p>
+              <Link href="/lectures">
+                <Button variant="outline" className="mt-4">
+                  강의 둘러보기
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {continueWatching.map((item) => {
+              const progressPercent =
+                item.video.duration && item.video.duration > 0
+                  ? Math.min(
+                      Math.round((item.progress / item.video.duration) * 100),
+                      100,
+                    )
+                  : 0;
+
+              const href = item.curriculum
+                ? `/lectures/${item.lecture?.id || ""}?v=${item.video.id}&curriculum=${item.curriculum.id}`
+                : `/lectures/${item.lecture?.id || ""}?v=${item.video.id}`;
+
+              return (
+                <Link key={item.id} href={href}>
+                  <Card className="overflow-hidden transition-shadow hover:shadow-md">
+                    <div className="relative">
+                      <img
+                        src={
+                          item.video.thumbnail_url ||
+                          `https://img.youtube.com/vi/${item.video.youtube_id}/hqdefault.jpg`
+                        }
+                        alt={item.video.title}
+                        className="aspect-video w-full object-cover"
+                      />
+                      {/* Progress bar */}
+                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-300">
+                        <div
+                          className="h-full bg-blue-500"
+                          style={{ width: `${progressPercent}%` }}
+                        />
+                      </div>
+                    </div>
+                    <CardContent className="p-3">
+                      <p className="font-medium text-gray-900 truncate text-sm">
+                        {item.video.title}
+                      </p>
+                      {item.lecture && (
+                        <p className="mt-1 text-xs text-gray-500 truncate">
+                          <BookOpen className="mr-1 inline h-3 w-3" />
+                          {item.lecture.title}
+                        </p>
+                      )}
+                      {item.curriculum && (
+                        <p className="mt-0.5 text-xs text-blue-600 truncate">
+                          📚 {item.curriculum.title}
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </section>
 
       {/* Favorites */}
       <section className="mb-8">
