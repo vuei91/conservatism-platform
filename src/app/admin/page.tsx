@@ -3,7 +3,14 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { BookOpen, FolderOpen, Users, BarChart3 } from "lucide-react";
+import {
+  BookOpen,
+  FolderOpen,
+  Users,
+  BarChart3,
+  Video,
+  Layers,
+} from "lucide-react";
 import { Card, CardContent, Skeleton } from "@/components/ui";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -32,15 +39,22 @@ export default function AdminPage() {
 
   const menuItems = [
     {
-      title: "강의 관리",
-      description: "강의 등록, 수정, 삭제",
-      icon: BookOpen,
+      title: "영상 관리",
+      description: "영상 등록, 수정, 삭제",
+      icon: Video,
       href: "/admin/lectures",
       color: "bg-blue-100 text-blue-600",
     },
     {
+      title: "강의 관리",
+      description: "영상을 묶어 강의 생성 및 관리",
+      icon: Layers,
+      href: "/admin/lecture-groups",
+      color: "bg-indigo-100 text-indigo-600",
+    },
+    {
       title: "커리큘럼 관리",
-      description: "커리큘럼 생성 및 관리",
+      description: "강의를 묶어 커리큘럼 생성 및 관리",
       icon: FolderOpen,
       href: "/admin/curriculums",
       color: "bg-green-100 text-green-600",
@@ -48,7 +62,7 @@ export default function AdminPage() {
     {
       title: "카테고리 관리",
       description: "카테고리 추가 및 수정",
-      icon: Users,
+      icon: BookOpen,
       href: "/admin/categories",
       color: "bg-purple-100 text-purple-600",
     },

@@ -63,7 +63,7 @@ export default function EditLecturePage({ params }: PageProps) {
         .single();
 
       if (error || !data) {
-        setError("강의를 찾을 수 없습니다");
+        setError("영상을 찾을 수 없습니다");
         setIsDataLoading(false);
         return;
       }
@@ -174,8 +174,8 @@ export default function EditLecturePage({ params }: PageProps) {
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">강의 수정</h1>
-        <p className="mt-2 text-gray-600">강의 정보를 수정하세요</p>
+        <h1 className="text-3xl font-bold text-gray-900">영상 수정</h1>
+        <p className="mt-2 text-gray-600">영상 정보를 수정하세요</p>
       </div>
 
       <Card>
@@ -212,14 +212,14 @@ export default function EditLecturePage({ params }: PageProps) {
             </div>
 
             <Input
-              label="강의 제목 *"
+              label="영상 제목 *"
               {...register("title")}
               error={errors.title?.message}
             />
 
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                강의 설명
+                영상 설명
               </label>
               <textarea
                 {...register("description")}
@@ -276,7 +276,7 @@ export default function EditLecturePage({ params }: PageProps) {
                   {...register("is_featured")}
                   className="h-4 w-4 rounded border-gray-300"
                 />
-                <span className="text-sm text-gray-700">추천 강의</span>
+                <span className="text-sm text-gray-700">추천 영상</span>
               </label>
             </div>
 

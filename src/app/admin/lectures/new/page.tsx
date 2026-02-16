@@ -136,8 +136,8 @@ export default function NewLecturePage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">강의 등록</h1>
-        <p className="mt-2 text-gray-600">새로운 강의를 등록하세요</p>
+        <h1 className="text-3xl font-bold text-gray-900">영상 등록</h1>
+        <p className="mt-2 text-gray-600">새로운 영상을 등록하세요</p>
       </div>
 
       <Card>
@@ -174,14 +174,14 @@ export default function NewLecturePage() {
             </div>
 
             <Input
-              label="강의 제목 *"
+              label="영상 제목 *"
               {...register("title")}
               error={errors.title?.message}
             />
 
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                강의 설명
+                영상 설명
               </label>
               <textarea
                 {...register("description")}
@@ -238,7 +238,7 @@ export default function NewLecturePage() {
                   {...register("is_featured")}
                   className="h-4 w-4 rounded border-gray-300"
                 />
-                <span className="text-sm text-gray-700">추천 강의</span>
+                <span className="text-sm text-gray-700">추천 영상</span>
               </label>
             </div>
 
@@ -246,7 +246,7 @@ export default function NewLecturePage() {
 
             <div className="flex gap-3">
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? "등록 중..." : "강의 등록"}
+                {isLoading ? "등록 중..." : "영상 등록"}
               </Button>
               <Button
                 type="button"

@@ -108,9 +108,11 @@ export default async function CurriculumDetailPage({ params }: PageProps) {
           </span>
         </div>
 
-        {firstVideo && (
+        {firstLecture && firstVideo && (
           <div className="mt-6">
-            <Link href={`/lectures/${firstVideo.id}?curriculum=${id}`}>
+            <Link
+              href={`/lectures/${firstLecture.id}?v=${firstVideo.id}&curriculum=${id}`}
+            >
               <Button size="lg">
                 <Play className="mr-2 h-5 w-5" />
                 학습 시작하기
@@ -239,7 +241,7 @@ export default async function CurriculumDetailPage({ params }: PageProps) {
                                 return (
                                   <Link
                                     key={lv.id}
-                                    href={`/lectures/${lv.video.id}?curriculum=${id}`}
+                                    href={`/lectures/${lecture.id}?v=${lv.video.id}&curriculum=${id}`}
                                     className="flex items-center gap-2 rounded px-2 py-1 text-sm text-gray-600 hover:bg-gray-50 hover:text-blue-600"
                                   >
                                     <Play className="h-3 w-3 shrink-0" />
