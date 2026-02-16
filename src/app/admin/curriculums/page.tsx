@@ -19,7 +19,7 @@ export default function AdminCurriculumsPage() {
 
     setDeletingId(id);
     const supabase = createClient();
-    await supabase.from("curriculums").delete().eq("id", id);
+    await supabase.from("lectures").delete().eq("id", id);
     queryClient.invalidateQueries({ queryKey: ["curriculums"] });
     setDeletingId(null);
   };
@@ -27,7 +27,7 @@ export default function AdminCurriculumsPage() {
   const togglePublish = async (id: string, currentStatus: boolean) => {
     const supabase = createClient();
     await supabase
-      .from("curriculums")
+      .from("lectures")
       .update({ is_published: !currentStatus })
       .eq("id", id);
     queryClient.invalidateQueries({ queryKey: ["curriculums"] });
@@ -36,7 +36,7 @@ export default function AdminCurriculumsPage() {
   const toggleFeatured = async (id: string, currentStatus: boolean) => {
     const supabase = createClient();
     await supabase
-      .from("curriculums")
+      .from("lectures")
       .update({ is_featured: !currentStatus })
       .eq("id", id);
     queryClient.invalidateQueries({ queryKey: ["curriculums"] });

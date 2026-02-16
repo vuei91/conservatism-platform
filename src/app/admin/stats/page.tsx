@@ -53,12 +53,10 @@ export default function StatsPage() {
         { count: recentUsers },
       ] = await Promise.all([
         supabase.from("profiles").select("*", { count: "exact", head: true }),
+        supabase.from("videos").select("*", { count: "exact", head: true }),
         supabase.from("lectures").select("*", { count: "exact", head: true }),
         supabase
-          .from("curriculums")
-          .select("*", { count: "exact", head: true }),
-        supabase
-          .from("lectures")
+          .from("videos")
           .select("id, title, view_count")
           .order("view_count", { ascending: false })
           .limit(5),

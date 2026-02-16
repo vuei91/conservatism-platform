@@ -1,9 +1,9 @@
 import { LectureCard } from "./lecture-card";
 import { Skeleton } from "@/components/ui";
-import type { Lecture, Category } from "@/types/database";
+import type { Video, Category } from "@/types/database";
 
 interface LectureGridProps {
-  lectures: (Lecture & { category?: Category | null })[];
+  lectures: (Video & { category?: Category | null })[];
   isLoading?: boolean;
 }
 

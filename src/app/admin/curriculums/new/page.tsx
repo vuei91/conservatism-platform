@@ -44,7 +44,7 @@ export default function NewCurriculumPage() {
 
     const supabase = createClient();
     const { data: newCurriculum, error } = await supabase
-      .from("curriculums")
+      .from("lectures")
       .insert({
         title: data.title,
         description: data.description || null,

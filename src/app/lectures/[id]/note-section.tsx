@@ -54,7 +54,7 @@ export function NoteSection({ lectureId }: NoteSectionProps) {
     } else {
       // 새로 생성
       await createNote.mutateAsync({
-        lecture_id: lectureId,
+        video_id: lectureId,
         timestamp: Math.floor(currentTime),
         cue: formData.cue || null,
         content: formData.content,

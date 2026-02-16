@@ -104,7 +104,7 @@ export default function NewLecturePage() {
       return;
     }
 
-    const { error } = await supabase.from("lectures").insert({
+    const { error } = await supabase.from("videos").insert({
       title: data.title,
       youtube_url: data.youtube_url,
       youtube_id: youtubeId,

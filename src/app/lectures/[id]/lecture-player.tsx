@@ -27,17 +27,17 @@ import {
   getYouTubeThumbnail,
 } from "@/lib/utils";
 import { NoteFloatingButton } from "./note-floating-button";
-import type { Lecture, Category, Curriculum } from "@/types/database";
+import type { Video, Category, Curriculum } from "@/types/database";
 
 interface CurriculumLectureItem {
   id: string;
   order: number;
-  lecture: Lecture & { category: Category | null };
+  lecture: Video & { category: Category | null };
 }
 
 interface LecturePlayerProps {
-  lecture: Lecture & { category: Category | null };
-  relatedLectures: (Lecture & { category: Category | null })[];
+  lecture: Video & { category: Category | null };
+  relatedLectures: (Video & { category: Category | null })[];
   curriculums: Curriculum[];
   curriculumLectures?: CurriculumLectureItem[];
   activeCurriculum?: Curriculum | null;
@@ -123,7 +123,7 @@ export function LecturePlayer({
             {lecture.description && (
               <div className="mt-6">
                 <h2 className="text-lg font-semibold text-gray-900">
-                  강의 설명
+                  영상 설명
                 </h2>
                 <p className="mt-2 whitespace-pre-wrap text-gray-600">
                   {lecture.description}
@@ -158,13 +158,13 @@ export function LecturePlayer({
                     href={`/curriculums/${activeCurriculum.id}`}
                     className="text-sm text-blue-600 hover:underline"
                   >
-                    ← 커리큘럼으로 돌아가기
+                    ← 강의로 돌아가기
                   </Link>
                   <h3 className="mt-2 font-semibold text-gray-900">
                     {activeCurriculum.title}
                   </h3>
                   <p className="text-sm text-gray-500">
-                    {curriculumLectures.length}개 강의
+                    {curriculumLectures.length}개 영상
                   </p>
                 </div>
                 <div className="space-y-2 max-h-[60vh] overflow-y-auto">
@@ -221,7 +221,7 @@ export function LecturePlayer({
             <Card className="mb-6">
               <CardContent className="p-4">
                 <h3 className="mb-4 flex items-center gap-2 font-semibold text-gray-900">
-                  <BookOpen className="h-5 w-5" />이 강의가 포함된 커리큘럼
+                  <BookOpen className="h-5 w-5" />이 영상이 포함된 강의
                 </h3>
                 <div className="space-y-3">
                   {curriculums.map((curriculum) => (

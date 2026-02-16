@@ -29,14 +29,6 @@ export function Footer() {
                   강의 목록
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/curriculums"
-                  className="text-sm text-gray-600 hover:text-blue-600"
-                >
-                  커리큘럼
-                </Link>
-              </li>
             </ul>
           </div>
 

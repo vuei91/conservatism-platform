@@ -60,7 +60,7 @@ export function NotePanel({ lectureId, isOpen, onClose }: NotePanelProps) {
       });
     } else {
       await createNote.mutateAsync({
-        lecture_id: lectureId,
+        video_id: lectureId,
         timestamp: Math.floor(currentTime),
         cue: formData.cue || null,
         content: formData.content,
@@ -78,7 +78,7 @@ export function NotePanel({ lectureId, isOpen, onClose }: NotePanelProps) {
 
     await deleteNote.mutateAsync({
       id: existingNote.id,
-      lectureId: lectureId,
+      videoId: lectureId,
     });
     setFormData({ cue: "", content: "", summary: "" });
   };

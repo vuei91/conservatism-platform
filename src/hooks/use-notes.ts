@@ -5,12 +5,12 @@ import { createClient } from "@/lib/supabase/client";
 import { useAuthStore } from "@/stores/auth-store";
 import type { Note, InsertTables, UpdateTables } from "@/types/database";
 
-export function useNotes(lectureId?: string) {
+export function useNotes(videoId?: string) {
   const supabase = createClient();
   const { user } = useAuthStore();
 
   return useQuery({
-    queryKey: ["notes", user?.id, lectureId],
+    queryKey: ["notes", user?.id, videoId],
     queryFn: async () => {
       if (!user) return [];
 
@@ -20,8 +20,8 @@ export function useNotes(lectureId?: string) {
         .eq("user_id", user.id)
         .order("timestamp", { ascending: true });
 
-      if (lectureId) {
-        query = query.eq("lecture_id", lectureId);
+      if (videoId) {
+        query = query.eq("video_id", videoId);
       }
 
       const { data, error } = await query;
@@ -57,7 +57,7 @@ export function useCreateNote() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({
-        queryKey: ["notes", user?.id, data.lecture_id],
+        queryKey: ["notes", user?.id, data.video_id],
       });
       queryClient.invalidateQueries({ queryKey: ["notes", user?.id] });
     },
@@ -86,7 +86,7 @@ export function useUpdateNote() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({
-        queryKey: ["notes", user?.id, data.lecture_id],
+        queryKey: ["notes", user?.id, data.video_id],
       });
       queryClient.invalidateQueries({ queryKey: ["notes", user?.id] });
     },
@@ -99,20 +99,14 @@ export function useDeleteNote() {
   const { user } = useAuthStore();
 
   return useMutation({
-    mutationFn: async ({
-      id,
-      lectureId,
-    }: {
-      id: string;
-      lectureId: string;
-    }) => {
+    mutationFn: async ({ id, videoId }: { id: string; videoId: string }) => {
       const { error } = await supabase.from("notes").delete().eq("id", id);
       if (error) throw error;
-      return lectureId;
+      return videoId;
     },
-    onSuccess: (lectureId) => {
+    onSuccess: (videoId) => {
       queryClient.invalidateQueries({
-        queryKey: ["notes", user?.id, lectureId],
+        queryKey: ["notes", user?.id, videoId],
       });
       queryClient.invalidateQueries({ queryKey: ["notes", user?.id] });
     },

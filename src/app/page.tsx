@@ -3,71 +3,58 @@ import { Suspense } from "react";
 import { ArrowRight, BookOpen, Play, Users } from "lucide-react";
 import { Button } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
-import { LectureCard } from "@/components/lectures";
 import { CurriculumCard } from "@/components/curriculum";
 import { EmailVerifiedModal } from "@/components/ui/email-verified-modal";
 
 export default async function HomePage() {
   const supabase = await createClient();
 
-  const [lecturesResult, curriculumsResult, categoriesResult] =
-    await Promise.all([
-      supabase
-        .from("lectures")
-        .select("*, category:categories(*)")
-        .eq("is_published", true)
-        .eq("is_featured", true)
-        .order("created_at", { ascending: false })
-        .limit(8),
-      supabase
-        .from("curriculums")
-        .select(
-          `
+  const [curriculumsResult, categoriesResult] = await Promise.all([
+    supabase
+      .from("lectures")
+      .select(
+        `
         *,
-        curriculum_lectures(
+        lecture_videos(
           id,
           order,
-          lecture:lectures(duration, youtube_id, thumbnail_url)
+          video:videos(duration, youtube_id, thumbnail_url)
         )
       `,
-        )
-        .eq("is_published", true)
-        .eq("is_featured", true)
-        .order("order", { ascending: true })
-        .limit(4),
-      supabase
-        .from("categories")
-        .select("*")
-        .order("order", { ascending: true }),
-    ]);
+      )
+      .eq("is_published", true)
+      .eq("is_featured", true)
+      .order("order", { ascending: true })
+      .limit(4),
+    supabase.from("categories").select("*").order("order", { ascending: true }),
+  ]);
 
-  const lectures = lecturesResult.data || [];
   const curriculums = (curriculumsResult.data || []).map((c) => {
-    const sortedLectures =
-      c.curriculum_lectures?.sort(
+    const sortedVideos =
+      c.lecture_videos?.sort(
         (a: { order: number }, b: { order: number }) => a.order - b.order,
       ) || [];
 
-    const thumbnails = sortedLectures
+    const thumbnails = sortedVideos
       .slice(0, 4)
       .map(
-        (cl: {
-          lecture: { youtube_id: string; thumbnail_url: string | null } | null;
+        (lv: {
+          video: { youtube_id: string; thumbnail_url: string | null } | null;
         }) =>
-          cl.lecture?.thumbnail_url ||
-          (cl.lecture?.youtube_id
-            ? `https://img.youtube.com/vi/${cl.lecture.youtube_id}/mqdefault.jpg`
+          lv.video?.thumbnail_url ||
+          (lv.video?.youtube_id
+            ? `https://img.youtube.com/vi/${lv.video.youtube_id}/mqdefault.jpg`
             : null),
       )
       .filter(Boolean) as string[];
 
     return {
       ...c,
-      lectureCount: c.curriculum_lectures?.length || 0,
+      lectureCount: c.lecture_videos?.length || 0,
       totalDuration:
-        c.curriculum_lectures?.reduce(
-          (acc: number, cl: { lecture: { duration: number | null } | null }) =>
-            acc + (cl.lecture?.duration || 0),
+        c.lecture_videos?.reduce(
+          (acc: number, lv: { video: { duration: number | null } | null }) =>
+            acc + (lv.video?.duration || 0),
           0,
         ) || 0,
       thumbnails,
@@ -93,7 +80,7 @@ export default async function HomePage() {
               유튜브에 산재된 양질의 보수주의 강의를 체계적으로 정리하여 무료로
               제공합니다. 로그인 없이도 모든 강의를 시청할 수 있습니다.
             </p>
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <div className="mt-10">
               <Link href="/lectures">
                 <Button
                   size="lg"
@@ -101,16 +88,6 @@ export default async function HomePage() {
                 >
                   <Play className="mr-2 h-5 w-5" />
                   강의 둘러보기
-                </Button>
-              </Link>
-              <Link href="/curriculums">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white text-white hover:bg-white/10"
-                >
-                  <BookOpen className="mr-2 h-5 w-5" />
-                  커리큘럼 보기
                 </Button>
               </Link>
             </div>
@@ -121,14 +98,10 @@ export default async function HomePage() {
       {/* Stats Section */}
       <section className="border-b border-gray-200 bg-white py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600">100+</div>
-              <div className="mt-1 text-sm text-gray-600">강의 수</div>
-            </div>
+          <div className="grid grid-cols-3 gap-8">
             <div className="text-center">
               <div className="text-3xl font-bold text-blue-600">10+</div>
-              <div className="mt-1 text-sm text-gray-600">커리큘럼</div>
+              <div className="mt-1 text-sm text-gray-600">강의</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-blue-600">5+</div>
@@ -142,20 +115,18 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Featured Curriculums */}
+      {/* Featured Lectures (Curriculums) */}
       {curriculums.length > 0 && (
         <section className="py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="mb-8 flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">
-                  추천 커리큘럼
-                </h2>
+                <h2 className="text-2xl font-bold text-gray-900">추천 강의</h2>
                 <p className="mt-1 text-gray-600">
-                  체계적인 학습을 위한 커리큘럼을 확인하세요
+                  엄선된 보수주의 강의를 만나보세요
                 </p>
               </div>
-              <Link href="/curriculums">
+              <Link href="/lectures">
                 <Button variant="ghost">
                   전체 보기
                   <ArrowRight className="ml-1 h-4 w-4" />
@@ -195,33 +166,6 @@ export default async function HomePage() {
                     {category.name}
                   </span>
                 </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Featured Lectures */}
-      {lectures.length > 0 && (
-        <section className="py-16">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="mb-8 flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">추천 강의</h2>
-                <p className="mt-1 text-gray-600">
-                  엄선된 보수주의 강의를 만나보세요
-                </p>
-              </div>
-              <Link href="/lectures">
-                <Button variant="ghost">
-                  전체 보기
-                  <ArrowRight className="ml-1 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {lectures.map((lecture) => (
-                <LectureCard key={lecture.id} lecture={lecture} />
               ))}
             </div>
           </div>

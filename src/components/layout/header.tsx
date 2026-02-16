@@ -49,12 +49,6 @@ export function Header() {
             >
               강의
             </Link>
-            <Link
-              href="/curriculums"
-              className="text-sm font-medium text-gray-700 hover:text-blue-600"
-            >
-              커리큘럼
-            </Link>
           </nav>
 
           {/* Search */}
@@ -150,13 +144,6 @@ export function Header() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 강의
-              </Link>
-              <Link
-                href="/curriculums"
-                className="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                커리큘럼
               </Link>
               {isLoading ? (
                 <div className="px-3 py-2">

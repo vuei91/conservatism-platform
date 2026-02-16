@@ -17,14 +17,14 @@ export default async function CurriculumsPage({ searchParams }: PageProps) {
   const supabase = await createClient();
 
   let query = supabase
-    .from("curriculums")
+    .from("lectures")
     .select(
       `
       *,
-      curriculum_lectures(
+      lecture_videos(
         id,
         order,
-        lecture:lectures(duration, youtube_id, thumbnail_url)
+        video:videos(duration, youtube_id, thumbnail_url)
       )
     `,
       { count: "exact" },
@@ -47,31 +47,31 @@ export default async function CurriculumsPage({ searchParams }: PageProps) {
   const totalPages = Math.ceil((count || 0) / PAGE_SIZE);
 
   const curriculums = (data || []).map((c) => {
-    const sortedLectures =
-      c.curriculum_lectures?.sort(
+    const sortedVideos =
+      c.lecture_videos?.sort(
         (a: { order: number }, b: { order: number }) => a.order - b.order,
       ) || [];
 
-    const thumbnails = sortedLectures
+    const thumbnails = sortedVideos
       .slice(0, 4)
       .map(
-        (cl: {
-          lecture: { youtube_id: string; thumbnail_url: string | null } | null;
+        (lv: {
+          video: { youtube_id: string; thumbnail_url: string | null } | null;
         }) =>
-          cl.lecture?.thumbnail_url ||
-          (cl.lecture?.youtube_id
-            ? `https://img.youtube.com/vi/${cl.lecture.youtube_id}/mqdefault.jpg`
+          lv.video?.thumbnail_url ||
+          (lv.video?.youtube_id
+            ? `https://img.youtube.com/vi/${lv.video.youtube_id}/mqdefault.jpg`
             : null),
       )
       .filter(Boolean) as string[];
 
     return {
       ...c,
-      lectureCount: c.curriculum_lectures?.length || 0,
+      lectureCount: c.lecture_videos?.length || 0,
       totalDuration:
-        c.curriculum_lectures?.reduce(
-          (acc: number, cl: { lecture: { duration: number | null } | null }) =>
-            acc + (cl.lecture?.duration || 0),
+        c.lecture_videos?.reduce(
+          (acc: number, lv: { video: { duration: number | null } | null }) =>
+            acc + (lv.video?.duration || 0),
           0,
         ) || 0,
       thumbnails,

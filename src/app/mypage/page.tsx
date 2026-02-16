@@ -127,7 +127,7 @@ export default function MyPage() {
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {favorites.slice(0, 4).map((fav) => (
-              <LectureCard key={fav.id} lecture={fav.lecture} />
+              <LectureCard key={fav.id} lecture={fav.video} />
             ))}
           </div>
         )}
@@ -164,7 +164,7 @@ export default function MyPage() {
         ) : (
           <div className="space-y-3">
             {notes.slice(0, 5).map((note) => (
-              <Link key={note.id} href={`/lectures/${note.lecture_id}`}>
+              <Link key={note.id} href={`/lectures/${note.video_id}`}>
                 <Card className="transition-shadow hover:shadow-md">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">

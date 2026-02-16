@@ -10,7 +10,7 @@ import { useNotes } from "@/hooks";
 import { formatTimestamp } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import type { Lecture, Note } from "@/types/database";
+import type { Video, Note } from "@/types/database";
 
 export default function NotesPage() {
   const router = useRouter();
@@ -18,22 +18,22 @@ export default function NotesPage() {
   const { data: notes = [], isLoading: notesLoading } = useNotes();
 
   // 노트에 연결된 강의 정보 가져오기
-  const lectureIds = [...new Set(notes.map((n: Note) => n.lecture_id))];
-  const { data: lectures = [] } = useQuery({
-    queryKey: ["lectures-for-notes", lectureIds],
+  const videoIds = [...new Set(notes.map((n: Note) => n.video_id))];
+  const { data: videos = [] } = useQuery({
+    queryKey: ["videos-for-notes", videoIds],
     queryFn: async () => {
-      if (lectureIds.length === 0) return [];
+      if (videoIds.length === 0) return [];
       const supabase = createClient();
       const { data } = await supabase
-        .from("lectures")
+        .from("videos")
         .select("id, title")
-        .in("id", lectureIds as string[]);
-      return (data || []) as Pick<Lecture, "id" | "title">[];
+        .in("id", videoIds as string[]);
+      return (data || []) as Pick<Video, "id" | "title">[];
     },
-    enabled: lectureIds.length > 0,
+    enabled: videoIds.length > 0,
   });
 
-  const lectureMap = new Map(lectures.map((l) => [l.id, l.title]));
+  const videoMap = new Map(videos.map((v) => [v.id, v.title]));
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -94,9 +94,7 @@ export default function NotesPage() {
             <NoteCard
               key={note.id}
               note={note}
-              lectureTitle={
-                lectureMap.get(note.lecture_id) || "알 수 없는 강의"
-              }
+              lectureTitle={videoMap.get(note.video_id) || "알 수 없는 영상"}
             />
           ))}
         </div>
@@ -113,7 +111,7 @@ function NoteCard({
   lectureTitle: string;
 }) {
   return (
-    <Link href={`/lectures/${note.lecture_id}`}>
+    <Link href={`/lectures/${note.video_id}`}>
       <Card className="transition-shadow hover:shadow-md">
         <CardContent className="p-4">
           <div className="mb-3 flex items-start justify-between">

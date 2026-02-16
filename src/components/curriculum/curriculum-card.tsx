@@ -47,7 +47,7 @@ export function CurriculumCard({ curriculum }: CurriculumCardProps) {
           {curriculum.lectureCount !== undefined &&
             curriculum.lectureCount > 0 && (
               <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                {curriculum.lectureCount}개 강의
+                {curriculum.lectureCount}개 영상
               </div>
             )}
         </div>

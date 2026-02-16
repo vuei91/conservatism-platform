@@ -18,7 +18,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useLectures } from "@/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { getDifficultyLabel } from "@/lib/utils";
-import type { Lecture, Category } from "@/types/database";
+import type { Video, Category } from "@/types/database";
 
 const curriculumSchema = z.object({
   title: z.string().min(1, "제목을 입력하세요"),
@@ -32,9 +32,9 @@ type CurriculumForm = z.infer<typeof curriculumSchema>;
 
 interface CurriculumLecture {
   id: string;
-  lecture_id: string;
+  video_id: string;
   order: number;
-  lecture: Lecture & { category: Category | null };
+  lecture: Video & { category: Category | null };
 }
 
 interface PageProps {
@@ -96,7 +96,7 @@ export default function EditCurriculumPage({ params }: PageProps) {
 
       // 커리큘럼 정보 가져오기
       const { data: curriculum, error: currError } = await supabase
-        .from("curriculums")
+        .from("lectures")
         .select("*")
         .eq("id", id)
         .single();
@@ -120,9 +120,9 @@ export default function EditCurriculumPage({ params }: PageProps) {
 
       // 커리큘럼에 포함된 강의 가져오기
       const { data: lectures } = await supabase
-        .from("curriculum_lectures")
-        .select("*, lecture:lectures(*, category:categories(*))")
-        .eq("curriculum_id", id)
+        .from("lecture_videos")
+        .select("*, lecture:videos(*, category:categories(*))")
+        .eq("lecture_id", id)
         .order("order", { ascending: true });
 
       if (lectures) {
@@ -144,7 +144,7 @@ export default function EditCurriculumPage({ params }: PageProps) {
 
     // 커리큘럼 정보 업데이트
     const { error } = await supabase
-      .from("curriculums")
+      .from("lectures")
       .update({
         title: data.title,
         description: data.description || null,
@@ -174,14 +174,14 @@ export default function EditCurriculumPage({ params }: PageProps) {
 
     // 삭제 처리
     for (const deleteId of toDelete) {
-      await supabase.from("curriculum_lectures").delete().eq("id", deleteId);
+      await supabase.from("lecture_videos").delete().eq("id", deleteId);
     }
 
     // 추가 처리
     for (const lecture of toAdd) {
-      await supabase.from("curriculum_lectures").insert({
-        curriculum_id: id,
-        lecture_id: lecture.lecture_id,
+      await supabase.from("lecture_videos").insert({
+        lecture_id: id,
+        video_id: lecture.video_id,
         order: curriculumLectures.indexOf(lecture),
       });
     }
@@ -191,7 +191,7 @@ export default function EditCurriculumPage({ params }: PageProps) {
       const cl = curriculumLectures[i];
       if (!cl.id.startsWith("temp_")) {
         await supabase
-          .from("curriculum_lectures")
+          .from("lecture_videos")
           .update({ order: i })
           .eq("id", cl.id);
       }
@@ -209,9 +209,9 @@ export default function EditCurriculumPage({ params }: PageProps) {
         const lecture = allLectures.find((l) => l.id === lectureId);
         return {
           id: `temp_${Date.now()}_${index}`,
-          lecture_id: lectureId,
+          video_id: lectureId,
           order: curriculumLectures.length + index,
-          lecture: lecture as Lecture & { category: Category | null },
+          lecture: lecture as Video & { category: Category | null },
         };
       },
     );
@@ -300,7 +300,7 @@ export default function EditCurriculumPage({ params }: PageProps) {
   };
 
   // 이미 추가된 강의 ID 목록
-  const addedLectureIds = curriculumLectures.map((cl) => cl.lecture_id);
+  const addedLectureIds = curriculumLectures.map((cl) => cl.video_id);
   const availableLectures = allLectures.filter(
     (l) => !addedLectureIds.includes(l.id),
   );

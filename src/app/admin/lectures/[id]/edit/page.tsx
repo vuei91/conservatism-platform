@@ -57,7 +57,7 @@ export default function EditLecturePage({ params }: PageProps) {
     const fetchLecture = async () => {
       const supabase = createClient();
       const { data, error } = await supabase
-        .from("lectures")
+        .from("videos")
         .select("*")
         .eq("id", id)
         .single();
@@ -128,7 +128,7 @@ export default function EditLecturePage({ params }: PageProps) {
 
     const supabase = createClient();
     const { error } = await supabase
-      .from("lectures")
+      .from("videos")
       .update({
         title: data.title,
         youtube_url: data.youtube_url,

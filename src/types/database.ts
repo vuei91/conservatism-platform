@@ -69,7 +69,7 @@ export interface Database {
         };
         Relationships: [];
       };
-      lectures: {
+      videos: {
         Row: {
           id: string;
           title: string;
@@ -130,7 +130,7 @@ export interface Database {
           },
         ];
       };
-      curriculums: {
+      lectures: {
         Row: {
           id: string;
           title: string;
@@ -172,39 +172,39 @@ export interface Database {
         };
         Relationships: [];
       };
-      curriculum_lectures: {
+      lecture_videos: {
         Row: {
           id: string;
-          curriculum_id: string;
           lecture_id: string;
+          video_id: string;
           order: number;
           created_at: string;
         };
         Insert: {
           id?: string;
-          curriculum_id: string;
           lecture_id: string;
+          video_id: string;
           order?: number;
           created_at?: string;
         };
         Update: {
           id?: string;
-          curriculum_id?: string;
           lecture_id?: string;
+          video_id?: string;
           order?: number;
           created_at?: string;
         };
         Relationships: [
           {
-            foreignKeyName: "curriculum_lectures_curriculum_id_fkey";
-            columns: ["curriculum_id"];
-            referencedRelation: "curriculums";
+            foreignKeyName: "lecture_videos_lecture_id_fkey";
+            columns: ["lecture_id"];
+            referencedRelation: "lectures";
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "curriculum_lectures_lecture_id_fkey";
-            columns: ["lecture_id"];
-            referencedRelation: "lectures";
+            foreignKeyName: "lecture_videos_video_id_fkey";
+            columns: ["video_id"];
+            referencedRelation: "videos";
             referencedColumns: ["id"];
           },
         ];
@@ -213,7 +213,7 @@ export interface Database {
         Row: {
           id: string;
           user_id: string;
-          lecture_id: string;
+          video_id: string;
           progress: number;
           is_completed: boolean;
           last_watched_at: string;
@@ -222,7 +222,7 @@ export interface Database {
         Insert: {
           id?: string;
           user_id: string;
-          lecture_id: string;
+          video_id: string;
           progress?: number;
           is_completed?: boolean;
           last_watched_at?: string;
@@ -231,7 +231,7 @@ export interface Database {
         Update: {
           id?: string;
           user_id?: string;
-          lecture_id?: string;
+          video_id?: string;
           progress?: number;
           is_completed?: boolean;
           last_watched_at?: string;
@@ -245,9 +245,9 @@ export interface Database {
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "watch_history_lecture_id_fkey";
-            columns: ["lecture_id"];
-            referencedRelation: "lectures";
+            foreignKeyName: "watch_history_video_id_fkey";
+            columns: ["video_id"];
+            referencedRelation: "videos";
             referencedColumns: ["id"];
           },
         ];
@@ -256,19 +256,19 @@ export interface Database {
         Row: {
           id: string;
           user_id: string;
-          lecture_id: string;
+          video_id: string;
           created_at: string;
         };
         Insert: {
           id?: string;
           user_id: string;
-          lecture_id: string;
+          video_id: string;
           created_at?: string;
         };
         Update: {
           id?: string;
           user_id?: string;
-          lecture_id?: string;
+          video_id?: string;
           created_at?: string;
         };
         Relationships: [
@@ -279,9 +279,9 @@ export interface Database {
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "favorites_lecture_id_fkey";
-            columns: ["lecture_id"];
-            referencedRelation: "lectures";
+            foreignKeyName: "favorites_video_id_fkey";
+            columns: ["video_id"];
+            referencedRelation: "videos";
             referencedColumns: ["id"];
           },
         ];
@@ -290,7 +290,7 @@ export interface Database {
         Row: {
           id: string;
           user_id: string;
-          lecture_id: string;
+          video_id: string;
           timestamp: number;
           cue: string | null;
           content: string;
@@ -302,7 +302,7 @@ export interface Database {
         Insert: {
           id?: string;
           user_id: string;
-          lecture_id: string;
+          video_id: string;
           timestamp?: number;
           cue?: string | null;
           content: string;
@@ -314,7 +314,7 @@ export interface Database {
         Update: {
           id?: string;
           user_id?: string;
-          lecture_id?: string;
+          video_id?: string;
           timestamp?: number;
           cue?: string | null;
           content?: string;
@@ -331,9 +331,9 @@ export interface Database {
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "notes_lecture_id_fkey";
-            columns: ["lecture_id"];
-            referencedRelation: "lectures";
+            foreignKeyName: "notes_video_id_fkey";
+            columns: ["video_id"];
+            referencedRelation: "videos";
             referencedColumns: ["id"];
           },
         ];
@@ -342,7 +342,7 @@ export interface Database {
         Row: {
           id: string;
           user_id: string;
-          lecture_id: string;
+          video_id: string;
           watch_completed: boolean;
           note_completed: boolean;
           completed_at: string | null;
@@ -352,7 +352,7 @@ export interface Database {
         Insert: {
           id?: string;
           user_id: string;
-          lecture_id: string;
+          video_id: string;
           watch_completed?: boolean;
           note_completed?: boolean;
           completed_at?: string | null;
@@ -362,7 +362,7 @@ export interface Database {
         Update: {
           id?: string;
           user_id?: string;
-          lecture_id?: string;
+          video_id?: string;
           watch_completed?: boolean;
           note_completed?: boolean;
           completed_at?: string | null;
@@ -377,9 +377,9 @@ export interface Database {
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "learning_progress_lecture_id_fkey";
-            columns: ["lecture_id"];
-            referencedRelation: "lectures";
+            foreignKeyName: "learning_progress_video_id_fkey";
+            columns: ["video_id"];
+            referencedRelation: "videos";
             referencedColumns: ["id"];
           },
         ];
@@ -388,7 +388,7 @@ export interface Database {
         Row: {
           id: string;
           user_id: string;
-          lecture_id: string;
+          video_id: string;
           review_date: string;
           review_count: number;
           is_completed: boolean;
@@ -398,7 +398,7 @@ export interface Database {
         Insert: {
           id?: string;
           user_id: string;
-          lecture_id: string;
+          video_id: string;
           review_date: string;
           review_count?: number;
           is_completed?: boolean;
@@ -408,7 +408,7 @@ export interface Database {
         Update: {
           id?: string;
           user_id?: string;
-          lecture_id?: string;
+          video_id?: string;
           review_date?: string;
           review_count?: number;
           is_completed?: boolean;
@@ -423,9 +423,9 @@ export interface Database {
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "review_schedules_lecture_id_fkey";
-            columns: ["lecture_id"];
-            referencedRelation: "lectures";
+            foreignKeyName: "review_schedules_video_id_fkey";
+            columns: ["video_id"];
+            referencedRelation: "videos";
             referencedColumns: ["id"];
           },
         ];
@@ -467,7 +467,7 @@ export interface Database {
     Functions: {
       increment_view_count: {
         Args: {
-          lecture_id: string;
+          p_video_id: string;
         };
         Returns: undefined;
       };
@@ -493,9 +493,9 @@ export type UpdateTables<T extends keyof Database["public"]["Tables"]> =
 // Convenience types
 export type Profile = Tables<"profiles">;
 export type Category = Tables<"categories">;
+export type Video = Tables<"videos">;
 export type Lecture = Tables<"lectures">;
-export type Curriculum = Tables<"curriculums">;
-export type CurriculumLecture = Tables<"curriculum_lectures">;
+export type LectureVideo = Tables<"lecture_videos">;
 export type WatchHistory = Tables<"watch_history">;
 export type Favorite = Tables<"favorites">;
 export type Note = Tables<"notes">;
@@ -503,14 +503,19 @@ export type LearningProgress = Tables<"learning_progress">;
 export type ReviewSchedule = Tables<"review_schedules">;
 
 // Extended types with relations
-export type LectureWithCategory = Lecture & {
+export type VideoWithCategory = Video & {
   category: Category | null;
 };
 
-export type CurriculumWithLectures = Curriculum & {
-  lectures: (CurriculumLecture & { lecture: Lecture })[];
+export type LectureWithVideos = Lecture & {
+  videos: (LectureVideo & { video: Video })[];
 };
 
-export type NoteWithLecture = Note & {
-  lecture: Lecture;
+export type NoteWithVideo = Note & {
+  video: Video;
 };
+
+// Backward compatibility aliases
+export type Curriculum = Lecture;
+export type CurriculumLecture = LectureVideo;
+export type CurriculumWithLectures = LectureWithVideos;

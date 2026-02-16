@@ -13,7 +13,7 @@ export default async function LecturePage({ params, searchParams }: PageProps) {
   const supabase = await createClient();
 
   const { data: lecture, error } = await supabase
-    .from("lectures")
+    .from("videos")
     .select("*, category:categories(*)")
     .eq("id", id)
     .single();
@@ -22,11 +22,11 @@ export default async function LecturePage({ params, searchParams }: PageProps) {
     notFound();
   }
 
-  // Get related lectures
+  // Get related videos
   let relatedLectures: (typeof lecture)[] = [];
   if (lecture.category_id) {
     const { data } = await supabase
-      .from("lectures")
+      .from("videos")
       .select("*, category:categories(*)")
       .eq("is_published", true)
       .eq("category_id", lecture.category_id)
@@ -35,16 +35,16 @@ export default async function LecturePage({ params, searchParams }: PageProps) {
     relatedLectures = data || [];
   }
 
-  // Get curriculums containing this lecture
+  // Get lectures (curriculums) containing this video
   const { data: curriculumData } = await supabase
-    .from("curriculum_lectures")
-    .select("curriculum:curriculums(*)")
-    .eq("lecture_id", id);
+    .from("lecture_videos")
+    .select("curriculum:lectures(*)")
+    .eq("video_id", id);
 
   const curriculums =
-    curriculumData?.map((cl) => cl.curriculum).filter(Boolean) || [];
+    curriculumData?.map((lv) => lv.curriculum).filter(Boolean) || [];
 
-  // Get curriculum lectures if curriculumId is provided
+  // Get lecture videos if curriculumId is provided
   let curriculumLectures: {
     id: string;
     order: number;
@@ -53,14 +53,14 @@ export default async function LecturePage({ params, searchParams }: PageProps) {
   let activeCurriculum: (typeof curriculums)[0] | null = null;
 
   if (curriculumId) {
-    const { data: clData } = await supabase
-      .from("curriculum_lectures")
-      .select("id, order, lecture:lectures(*, category:categories(*))")
-      .eq("curriculum_id", curriculumId)
+    const { data: lvData } = await supabase
+      .from("lecture_videos")
+      .select("id, order, lecture:videos(*, category:categories(*))")
+      .eq("lecture_id", curriculumId)
       .order("order", { ascending: true });
 
-    if (clData) {
-      curriculumLectures = clData as typeof curriculumLectures;
+    if (lvData) {
+      curriculumLectures = lvData as typeof curriculumLectures;
     }
 
     activeCurriculum = curriculums.find((c) => c?.id === curriculumId) || null;

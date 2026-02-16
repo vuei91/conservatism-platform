@@ -12,10 +12,10 @@ import {
 } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useToggleFavorite, useIsFavorite } from "@/hooks";
-import type { Lecture, Category } from "@/types/database";
+import type { Video, Category } from "@/types/database";
 
 interface LectureCardProps {
-  lecture: Lecture & { category?: Category | null };
+  lecture: Video & { category?: Category | null };
 }
 
 export function LectureCard({ lecture }: LectureCardProps) {

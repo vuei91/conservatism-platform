@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
-import type { Lecture, Category } from "@/types/database";
+import type { Video, Category } from "@/types/database";
 
 export function useLectures(options?: {
   categoryId?: string;
@@ -18,11 +18,10 @@ export function useLectures(options?: {
     queryKey: ["lectures", options],
     queryFn: async () => {
       let query = supabase
-        .from("lectures")
+        .from("videos")
         .select("*, category:categories(*)")
         .order("created_at", { ascending: false });
 
-      // 관리자가 아닌 경우 공개된 강의만
       if (!options?.includeUnpublished) {
         query = query.eq("is_published", true);
       }
@@ -48,7 +47,7 @@ export function useLectures(options?: {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as (Lecture & { category: Category | null })[];
+      return data as (Video & { category: Category | null })[];
     },
   });
 }
@@ -60,13 +59,13 @@ export function useLecture(id: string) {
     queryKey: ["lecture", id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("lectures")
+        .from("videos")
         .select("*, category:categories(*)")
         .eq("id", id)
         .single();
 
       if (error) throw error;
-      return data as Lecture & { category: Category | null };
+      return data as Video & { category: Category | null };
     },
     enabled: !!id,
   });
@@ -77,14 +76,14 @@ export function useIncrementViewCount() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (lectureId: string) => {
+    mutationFn: async (videoId: string) => {
       const { error } = await supabase.rpc("increment_view_count", {
-        lecture_id: lectureId,
+        p_video_id: videoId,
       });
       if (error) throw error;
     },
-    onSuccess: (_, lectureId) => {
-      queryClient.invalidateQueries({ queryKey: ["lecture", lectureId] });
+    onSuccess: (_, videoId) => {
+      queryClient.invalidateQueries({ queryKey: ["lecture", videoId] });
     },
   });
 }

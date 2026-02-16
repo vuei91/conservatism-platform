@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
-import type { Curriculum, CurriculumLecture, Lecture } from "@/types/database";
+import type { Video } from "@/types/database";
 
 export function useCurriculums(options?: {
   difficulty?: string;
@@ -15,14 +15,14 @@ export function useCurriculums(options?: {
     queryKey: ["curriculums", options],
     queryFn: async () => {
       let query = supabase
-        .from("curriculums")
+        .from("lectures")
         .select(
           `
           *,
-          curriculum_lectures(
+          lecture_videos(
             id,
             order,
-            lecture:lectures(duration, youtube_id, thumbnail_url)
+            video:videos(duration, youtube_id, thumbnail_url)
           )
         `,
         )
@@ -45,38 +45,37 @@ export function useCurriculums(options?: {
       const { data, error } = await query;
       if (error) throw error;
 
-      return data.map((curriculum) => {
-        const sortedLectures =
-          curriculum.curriculum_lectures?.sort(
+      return data.map((lecture) => {
+        const sortedVideos =
+          lecture.lecture_videos?.sort(
             (a: { order: number }, b: { order: number }) => a.order - b.order,
           ) || [];
 
-        // 상위 4개 강의의 썸네일
-        const thumbnails = sortedLectures
+        const thumbnails = sortedVideos
           .slice(0, 4)
           .map(
-            (cl: {
-              lecture: {
+            (lv: {
+              video: {
                 youtube_id: string;
                 thumbnail_url: string | null;
               } | null;
             }) =>
-              cl.lecture?.thumbnail_url ||
-              (cl.lecture?.youtube_id
-                ? `https://img.youtube.com/vi/${cl.lecture.youtube_id}/mqdefault.jpg`
+              lv.video?.thumbnail_url ||
+              (lv.video?.youtube_id
+                ? `https://img.youtube.com/vi/${lv.video.youtube_id}/mqdefault.jpg`
                 : null),
           )
           .filter(Boolean);
 
         return {
-          ...curriculum,
-          lectureCount: curriculum.curriculum_lectures?.length || 0,
+          ...lecture,
+          lectureCount: lecture.lecture_videos?.length || 0,
           totalDuration:
-            curriculum.curriculum_lectures?.reduce(
+            lecture.lecture_videos?.reduce(
               (
                 acc: number,
-                cl: { lecture: { duration: number | null } | null },
-              ) => acc + (cl.lecture?.duration || 0),
+                lv: { video: { duration: number | null } | null },
+              ) => acc + (lv.video?.duration || 0),
               0,
             ) || 0,
           thumbnails,
@@ -93,14 +92,14 @@ export function useCurriculum(id: string) {
     queryKey: ["curriculum", id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("curriculums")
+        .from("lectures")
         .select(
           `
           *,
-          curriculum_lectures(
+          lecture_videos(
             id,
             order,
-            lecture:lectures(*)
+            video:videos(*)
           )
         `,
         )
@@ -109,18 +108,18 @@ export function useCurriculum(id: string) {
 
       if (error) throw error;
 
-      const sortedLectures = data.curriculum_lectures?.sort(
+      const sortedVideos = data.lecture_videos?.sort(
         (a: { order: number }, b: { order: number }) => a.order - b.order,
       );
 
       return {
         ...data,
-        curriculum_lectures: sortedLectures,
-        lectureCount: sortedLectures?.length || 0,
+        lecture_videos: sortedVideos,
+        lectureCount: sortedVideos?.length || 0,
         totalDuration:
-          sortedLectures?.reduce(
-            (acc: number, cl: { lecture: Lecture | null }) =>
-              acc + (cl.lecture?.duration || 0),
+          sortedVideos?.reduce(
+            (acc: number, lv: { video: Video | null }) =>
+              acc + (lv.video?.duration || 0),
             0,
           ) || 0,
       };

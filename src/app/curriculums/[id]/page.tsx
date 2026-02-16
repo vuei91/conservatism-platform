@@ -20,14 +20,14 @@ export default async function CurriculumDetailPage({ params }: PageProps) {
   const supabase = await createClient();
 
   const { data: curriculum, error } = await supabase
-    .from("curriculums")
+    .from("lectures")
     .select(
       `
       *,
-      curriculum_lectures(
+      lecture_videos(
         id,
         order,
-        lecture:lectures(*)
+        video:videos(*)
       )
     `,
     )
@@ -38,14 +38,14 @@ export default async function CurriculumDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  const sortedLectures =
-    curriculum.curriculum_lectures?.sort(
+  const sortedVideos =
+    curriculum.lecture_videos?.sort(
       (a: { order: number }, b: { order: number }) => a.order - b.order,
     ) || [];
 
-  const totalDuration = sortedLectures.reduce(
-    (acc: number, cl: { lecture: { duration: number | null } | null }) =>
-      acc + (cl.lecture?.duration || 0),
+  const totalDuration = sortedVideos.reduce(
+    (acc: number, lv: { video: { duration: number | null } | null }) =>
+      acc + (lv.video?.duration || 0),
     0,
   );
 
@@ -66,7 +66,7 @@ export default async function CurriculumDetailPage({ params }: PageProps) {
         <div className="mt-6 flex flex-wrap items-center gap-6 text-sm text-gray-500">
           <span className="flex items-center gap-1">
             <BookOpen className="h-4 w-4" />
-            {sortedLectures.length}개 강의
+            {sortedVideos.length}개 영상
           </span>
           <span className="flex items-center gap-1">
             <Clock className="h-4 w-4" />총 {Math.round(totalDuration / 60)}분
@@ -82,10 +82,10 @@ export default async function CurriculumDetailPage({ params }: PageProps) {
           </div>
         )}
 
-        {sortedLectures.length > 0 && (
+        {sortedVideos.length > 0 && (
           <div className="mt-6">
             <Link
-              href={`/lectures/${sortedLectures[0].lecture?.id}?curriculum=${id}`}
+              href={`/lectures/${sortedVideos[0].video?.id}?curriculum=${id}`}
             >
               <Button size="lg">
                 <Play className="mr-2 h-5 w-5" />
@@ -98,14 +98,14 @@ export default async function CurriculumDetailPage({ params }: PageProps) {
 
       {/* Lecture List */}
       <div>
-        <h2 className="mb-4 text-xl font-semibold text-gray-900">강의 목록</h2>
+        <h2 className="mb-4 text-xl font-semibold text-gray-900">영상 목록</h2>
         <div className="space-y-3">
-          {sortedLectures.map(
+          {sortedVideos.map(
             (
-              cl: {
+              lv: {
                 id: string;
                 order: number;
-                lecture: {
+                video: {
                   id: string;
                   title: string;
                   youtube_id: string;
@@ -116,13 +116,13 @@ export default async function CurriculumDetailPage({ params }: PageProps) {
               },
               index: number,
             ) => {
-              const lecture = cl.lecture;
-              if (!lecture) return null;
+              const video = lv.video;
+              if (!video) return null;
 
               return (
                 <Link
-                  key={cl.id}
-                  href={`/lectures/${lecture.id}?curriculum=${id}`}
+                  key={lv.id}
+                  href={`/lectures/${video.id}?curriculum=${id}`}
                 >
                   <Card className="transition-shadow hover:shadow-md">
                     <CardContent className="flex items-center gap-4 p-4">
@@ -132,10 +132,10 @@ export default async function CurriculumDetailPage({ params }: PageProps) {
                       <div className="relative h-16 w-28 flex-shrink-0 overflow-hidden rounded bg-gray-100">
                         <Image
                           src={
-                            lecture.thumbnail_url ||
-                            getYouTubeThumbnail(lecture.youtube_id)
+                            video.thumbnail_url ||
+                            getYouTubeThumbnail(video.youtube_id)
                           }
-                          alt={lecture.title}
+                          alt={video.title}
                           fill
                           className="object-cover"
                           sizes="112px"
@@ -143,17 +143,17 @@ export default async function CurriculumDetailPage({ params }: PageProps) {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="font-medium text-gray-900 truncate">
-                          {lecture.title}
+                          {video.title}
                         </h3>
-                        {lecture.instructor && (
+                        {video.instructor && (
                           <p className="text-sm text-gray-500">
-                            {lecture.instructor}
+                            {video.instructor}
                           </p>
                         )}
                       </div>
-                      {lecture.duration && (
+                      {video.duration && (
                         <div className="flex-shrink-0 text-sm text-gray-500">
-                          {formatDuration(lecture.duration)}
+                          {formatDuration(video.duration)}
                         </div>
                       )}
                     </CardContent>

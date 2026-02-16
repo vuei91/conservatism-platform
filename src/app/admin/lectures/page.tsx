@@ -22,7 +22,7 @@ export default function AdminLecturesPage() {
 
     setDeletingId(id);
     const supabase = createClient();
-    await supabase.from("lectures").delete().eq("id", id);
+    await supabase.from("videos").delete().eq("id", id);
     queryClient.invalidateQueries({ queryKey: ["lectures"] });
     setDeletingId(null);
   };
@@ -30,7 +30,7 @@ export default function AdminLecturesPage() {
   const togglePublish = async (id: string, currentStatus: boolean) => {
     const supabase = createClient();
     await supabase
-      .from("lectures")
+      .from("videos")
       .update({ is_published: !currentStatus })
       .eq("id", id);
     queryClient.invalidateQueries({ queryKey: ["lectures"] });
@@ -39,7 +39,7 @@ export default function AdminLecturesPage() {
   const toggleFeatured = async (id: string, currentStatus: boolean) => {
     const supabase = createClient();
     await supabase
-      .from("lectures")
+      .from("videos")
       .update({ is_featured: !currentStatus })
       .eq("id", id);
     queryClient.invalidateQueries({ queryKey: ["lectures"] });
