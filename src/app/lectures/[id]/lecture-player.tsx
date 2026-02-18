@@ -47,7 +47,7 @@ export function LecturePlayer({
   curriculumId,
 }: LecturePlayerProps) {
   const { user } = useAuthStore();
-  const { data: isFavorite } = useIsFavorite(activeVideo.id);
+  const { data: isFavorite } = useIsFavorite(lecture.id);
   const toggleFavorite = useToggleFavorite();
   const incrementViewCount = useIncrementViewCount();
   const updateWatchHistory = useUpdateWatchHistory();
@@ -116,7 +116,7 @@ export function LecturePlayer({
       alert("로그인이 필요합니다.");
       return;
     }
-    toggleFavorite.mutate(activeVideo.id);
+    toggleFavorite.mutate(lecture.id);
   };
 
   return (
@@ -160,19 +160,6 @@ export function LecturePlayer({
                   {formatDuration(activeVideo.duration)}
                 </span>
               )}
-            </div>
-
-            <div className="mt-4 flex gap-2">
-              <Button
-                variant={isFavorite ? "primary" : "outline"}
-                onClick={handleToggleFavorite}
-                disabled={toggleFavorite.isPending}
-              >
-                <Heart
-                  className={`mr-2 h-4 w-4 ${isFavorite ? "fill-current" : ""}`}
-                />
-                {isFavorite ? "즐겨찾기 해제" : "즐겨찾기"}
-              </Button>
             </div>
 
             {activeVideo.description && (
@@ -228,10 +215,27 @@ export function LecturePlayer({
                     ← 커리큘럼으로 돌아가기
                   </Link>
                 )}
-                <h3 className="mt-2 font-semibold text-gray-900">
-                  <BookOpen className="inline h-4 w-4 mr-1" />
-                  {lecture.title}
-                </h3>
+                <div className="mt-2 flex items-center justify-between">
+                  <h3 className="font-semibold text-gray-900">
+                    <BookOpen className="inline h-4 w-4 mr-1" />
+                    {lecture.title}
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={handleToggleFavorite}
+                    disabled={toggleFavorite.isPending}
+                    className="shrink-0 rounded-full p-1.5 transition-colors hover:bg-gray-100"
+                    aria-label={isFavorite ? "즐겨찾기 해제" : "즐겨찾기"}
+                  >
+                    <Heart
+                      className={`h-5 w-5 ${
+                        isFavorite
+                          ? "fill-red-500 text-red-500"
+                          : "text-gray-400"
+                      }`}
+                    />
+                  </button>
+                </div>
                 <p className="text-sm text-gray-500">
                   {sortedVideos.length}개 영상
                 </p>

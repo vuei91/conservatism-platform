@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Clock, Eye, Heart } from "lucide-react";
+import { Clock, Eye } from "lucide-react";
 import { Badge } from "@/components/ui";
 import {
   formatDuration,
@@ -10,8 +10,6 @@ import {
   getDifficultyColor,
   getYouTubeThumbnail,
 } from "@/lib/utils";
-import { useAuthStore } from "@/stores/auth-store";
-import { useToggleFavorite, useIsFavorite } from "@/hooks";
 import type { Video, Category } from "@/types/database";
 
 interface LectureCardProps {
@@ -22,21 +20,9 @@ export function LectureCard({ lecture }: LectureCardProps) {
   const router = useRouter();
   const thumbnailUrl =
     lecture.thumbnail_url || getYouTubeThumbnail(lecture.youtube_id);
-  const { user } = useAuthStore();
-  const { data: isFavorite } = useIsFavorite(lecture.id);
-  const toggleFavorite = useToggleFavorite();
 
   const handleCardClick = () => {
     router.push(`/lectures/${lecture.id}`);
-  };
-
-  const handleFavoriteClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!user) {
-      alert("로그인이 필요합니다.");
-      return;
-    }
-    toggleFavorite.mutate(lecture.id);
   };
 
   return (
@@ -58,19 +44,6 @@ export function LectureCard({ lecture }: LectureCardProps) {
             {formatDuration(lecture.duration)}
           </div>
         )}
-        {/* 즐겨찾기 버튼 */}
-        <button
-          type="button"
-          onClick={handleFavoriteClick}
-          className="absolute top-2 right-2 z-10 rounded-full bg-white/90 p-1.5 shadow-sm transition-colors hover:bg-white"
-          aria-label={isFavorite ? "즐겨찾기 해제" : "즐겨찾기"}
-        >
-          <Heart
-            className={`h-4 w-4 ${
-              isFavorite ? "fill-red-500 text-red-500" : "text-gray-600"
-            }`}
-          />
-        </button>
       </div>
 
       {/* Content */}

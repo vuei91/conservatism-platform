@@ -7,7 +7,7 @@ import { BookOpen, Heart, Clock, FileText, Settings, Play } from "lucide-react";
 import { Card, CardContent, Button, Skeleton } from "@/components/ui";
 import { useAuthStore } from "@/stores/auth-store";
 import { useFavorites, useNotes, useContinueWatching } from "@/hooks";
-import { LectureCard } from "@/components/lectures";
+import { LectureListCard } from "@/components/lectures";
 
 export default function MyPage() {
   const router = useRouter();
@@ -213,9 +213,50 @@ export default function MyPage() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {favorites.slice(0, 4).map((fav) => (
-              <LectureCard key={fav.id} lecture={fav.video} />
-            ))}
+            {favorites.slice(0, 4).map((fav) => {
+              const sortedVideos =
+                fav.lecture.lecture_videos?.sort(
+                  (a: { order: number }, b: { order: number }) =>
+                    a.order - b.order,
+                ) || [];
+
+              const thumbnails = sortedVideos
+                .slice(0, 4)
+                .map(
+                  (lv: {
+                    video: {
+                      youtube_id: string;
+                      thumbnail_url: string | null;
+                    } | null;
+                  }) =>
+                    lv.video?.thumbnail_url ||
+                    (lv.video?.youtube_id
+                      ? `https://img.youtube.com/vi/${lv.video.youtube_id}/mqdefault.jpg`
+                      : null),
+                )
+                .filter(Boolean) as string[];
+
+              return (
+                <LectureListCard
+                  key={fav.id}
+                  lecture={{
+                    ...fav.lecture,
+                    lectureCount: fav.lecture.lecture_videos?.length || 0,
+                    totalDuration:
+                      fav.lecture.lecture_videos?.reduce(
+                        (
+                          acc: number,
+                          lv: {
+                            video: { duration: number | null } | null;
+                          },
+                        ) => acc + (lv.video?.duration || 0),
+                        0,
+                      ) || 0,
+                    thumbnails,
+                  }}
+                />
+              );
+            })}
           </div>
         )}
       </section>

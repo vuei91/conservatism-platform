@@ -1,8 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
-import { BookOpen, Clock } from "lucide-react";
+import { BookOpen, Clock, Heart } from "lucide-react";
 import { Badge } from "@/components/ui";
 import { getDifficultyLabel, getDifficultyColor } from "@/lib/utils";
+import { useAuthStore } from "@/stores/auth-store";
+import { useToggleFavorite, useIsFavorite } from "@/hooks";
 import type { Lecture } from "@/types/database";
 
 interface LectureListCardProps {
@@ -15,6 +19,19 @@ interface LectureListCardProps {
 
 export function LectureListCard({ lecture }: LectureListCardProps) {
   const thumbnails = lecture.thumbnails || [];
+  const { user } = useAuthStore();
+  const { data: isFavorite } = useIsFavorite(lecture.id);
+  const toggleFavorite = useToggleFavorite();
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+    toggleFavorite.mutate(lecture.id);
+  };
 
   return (
     <Link href={`/lectures/${lecture.id}`}>
@@ -46,6 +63,18 @@ export function LectureListCard({ lecture }: LectureListCardProps) {
               {lecture.lectureCount}개 영상
             </div>
           )}
+          <button
+            type="button"
+            onClick={handleFavoriteClick}
+            className="absolute top-2 right-2 z-10 rounded-full bg-white/90 p-1.5 shadow-sm transition-colors hover:bg-white"
+            aria-label={isFavorite ? "즐겨찾기 해제" : "즐겨찾기"}
+          >
+            <Heart
+              className={`h-4 w-4 ${
+                isFavorite ? "fill-red-500 text-red-500" : "text-gray-600"
+              }`}
+            />
+          </button>
         </div>
 
         <div className="p-4">

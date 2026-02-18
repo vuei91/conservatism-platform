@@ -274,19 +274,19 @@ export interface Database {
         Row: {
           id: string;
           user_id: string;
-          video_id: string;
+          lecture_id: string;
           created_at: string;
         };
         Insert: {
           id?: string;
           user_id: string;
-          video_id: string;
+          lecture_id: string;
           created_at?: string;
         };
         Update: {
           id?: string;
           user_id?: string;
-          video_id?: string;
+          lecture_id?: string;
           created_at?: string;
         };
         Relationships: [
@@ -297,9 +297,9 @@ export interface Database {
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "favorites_video_id_fkey";
-            columns: ["video_id"];
-            referencedRelation: "videos";
+            foreignKeyName: "favorites_lecture_id_fkey";
+            columns: ["lecture_id"];
+            referencedRelation: "lectures";
             referencedColumns: ["id"];
           },
         ];
