@@ -36,20 +36,20 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold text-blue-600">보수학당</span>
+            <span className="text-xl font-bold text-sequoia-600">보수학당</span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
             <Link
               href="/lectures"
-              className="text-sm font-medium text-gray-700 hover:text-blue-600"
+              className="text-sm font-medium text-gray-700 hover:text-sequoia-600"
             >
               강의
             </Link>
             <Link
               href="/curriculums"
-              className="text-sm font-medium text-gray-700 hover:text-blue-600"
+              className="text-sm font-medium text-gray-700 hover:text-sequoia-600"
             >
               커리큘럼
             </Link>
@@ -67,7 +67,7 @@ export function Header() {
                 placeholder="강의 검색..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-sequoia-500 focus:outline-none focus:ring-1 focus:ring-sequoia-500"
               />
             </div>
           </form>
@@ -199,7 +199,7 @@ export function Header() {
                   </Link>
                   <Link
                     href="/signup"
-                    className="px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg"
+                    className="px-3 py-2 text-sm font-medium text-sequoia-600 hover:bg-sequoia-50 rounded-lg"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     회원가입

@@ -68,7 +68,7 @@ export default async function HomePage() {
         <EmailVerifiedModal />
       </Suspense>
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-600 to-blue-800 py-20 text-white">
+      <section className="bg-gradient-to-br from-sequoia-600 to-sequoia-800 py-20 text-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
@@ -76,7 +76,7 @@ export default async function HomePage() {
               <br />
               환영합니다
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-blue-100">
+            <p className="mx-auto mt-6 max-w-2xl text-lg text-sequoia-100">
               유튜브에 산재된 양질의 보수주의 강의를 체계적으로 정리하여 무료로
               제공합니다. 로그인 없이도 모든 강의를 시청할 수 있습니다.
             </p>
@@ -84,7 +84,7 @@ export default async function HomePage() {
               <Link href="/lectures">
                 <Button
                   size="lg"
-                  className="bg-white text-blue-600 hover:bg-blue-50"
+                  className="bg-white text-sequoia-600 hover:bg-sequoia-50"
                 >
                   <Play className="mr-2 h-5 w-5" />
                   강의 둘러보기
@@ -100,15 +100,15 @@ export default async function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600">10+</div>
+              <div className="text-3xl font-bold text-sequoia-600">10+</div>
               <div className="mt-1 text-sm text-gray-600">강의</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600">5+</div>
+              <div className="text-3xl font-bold text-sequoia-600">5+</div>
               <div className="mt-1 text-sm text-gray-600">카테고리</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600">무료</div>
+              <div className="text-3xl font-bold text-sequoia-600">무료</div>
               <div className="mt-1 text-sm text-gray-600">모든 콘텐츠</div>
             </div>
           </div>
@@ -161,7 +161,7 @@ export default async function HomePage() {
                   href={`/lectures?category=${category.slug}`}
                   className="flex flex-col items-center rounded-xl border border-gray-200 bg-white p-6 text-center transition-shadow hover:shadow-md"
                 >
-                  <Users className="mb-3 h-8 w-8 text-blue-600" />
+                  <Users className="mb-3 h-8 w-8 text-sequoia-600" />
                   <span className="font-medium text-gray-900">
                     {category.name}
                   </span>
@@ -173,12 +173,12 @@ export default async function HomePage() {
       )}
 
       {/* CTA Section */}
-      <section className="bg-blue-600 py-16">
+      <section className="bg-sequoia-600 py-16">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-white">
             지금 바로 학습을 시작하세요
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-blue-100">
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-sequoia-100">
             회원가입 없이도 모든 강의를 무료로 시청할 수 있습니다. 로그인하시면
             학습 기록과 메모 기능을 이용하실 수 있습니다.
           </p>
@@ -186,7 +186,7 @@ export default async function HomePage() {
             <Link href="/lectures">
               <Button
                 size="lg"
-                className="bg-white text-blue-600 hover:bg-blue-50"
+                className="bg-white text-sequoia-600 hover:bg-sequoia-50"
               >
                 강의 시작하기
               </Button>

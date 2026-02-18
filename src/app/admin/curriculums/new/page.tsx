@@ -88,7 +88,7 @@ export default function NewCurriculumPage() {
               <textarea
                 {...register("description")}
                 rows={3}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-sequoia-500 focus:outline-none focus:ring-1 focus:ring-sequoia-500"
               />
             </div>
 
@@ -98,7 +98,7 @@ export default function NewCurriculumPage() {
               </label>
               <select
                 {...register("difficulty")}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-sequoia-500 focus:outline-none focus:ring-1 focus:ring-sequoia-500"
               >
                 <option value="beginner">입문</option>
                 <option value="intermediate">중급</option>

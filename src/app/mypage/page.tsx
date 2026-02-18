@@ -50,8 +50,8 @@ export default function MyPage() {
       <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
         <Card>
           <CardContent className="flex items-center gap-4 p-4">
-            <div className="rounded-full bg-blue-100 p-3">
-              <Heart className="h-6 w-6 text-blue-600" />
+            <div className="rounded-full bg-sequoia-100 p-3">
+              <Heart className="h-6 w-6 text-sequoia-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">
@@ -152,7 +152,7 @@ export default function MyPage() {
                       {/* Progress bar */}
                       <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-300">
                         <div
-                          className="h-full bg-blue-500"
+                          className="h-full bg-sequoia-500"
                           style={{ width: `${progressPercent}%` }}
                         />
                       </div>
@@ -168,7 +168,7 @@ export default function MyPage() {
                         </p>
                       )}
                       {item.curriculum && (
-                        <p className="mt-0.5 text-xs text-blue-600 truncate">
+                        <p className="mt-0.5 text-xs text-sequoia-600 truncate">
                           📚 {item.curriculum.title}
                         </p>
                       )}
@@ -257,7 +257,7 @@ export default function MyPage() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         {note.cue && (
-                          <p className="mb-1 text-sm font-medium text-blue-600">
+                          <p className="mb-1 text-sm font-medium text-sequoia-600">
                             {note.cue}
                           </p>
                         )}
@@ -284,7 +284,7 @@ export default function MyPage() {
         <CardContent className="p-4">
           <Link
             href="/mypage/settings"
-            className="flex items-center gap-3 text-gray-700 hover:text-blue-600"
+            className="flex items-center gap-3 text-gray-700 hover:text-sequoia-600"
           >
             <Settings className="h-5 w-5" />
             <span>프로필 설정</span>

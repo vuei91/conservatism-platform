@@ -43,7 +43,7 @@ export default function AdminPage() {
       description: "영상 등록, 수정, 삭제",
       icon: Video,
       href: "/admin/lectures",
-      color: "bg-blue-100 text-blue-600",
+      color: "bg-sequoia-100 text-sequoia-600",
     },
     {
       title: "강의 관리",

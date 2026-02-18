@@ -12,6 +12,20 @@
   --font-mono: var(--font-geist-mono);
 }
 
+@theme {
+  /* Sequoia (PANTONE 19-1333) palette */
+  --color-sequoia-50: #faf5f4;
+  --color-sequoia-100: #f3e8e5;
+  --color-sequoia-200: #e8d0cb;
+  --color-sequoia-300: #d4ada4;
+  --color-sequoia-400: #bc8477;
+  --color-sequoia-500: #a66b5c;
+  --color-sequoia-600: #804839;
+  --color-sequoia-700: #6e3d30;
+  --color-sequoia-800: #5c342a;
+  --color-sequoia-900: #4d2c24;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;

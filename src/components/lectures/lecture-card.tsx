@@ -84,7 +84,7 @@ export function LectureCard({ lecture }: LectureCardProps) {
           </Badge>
         </div>
 
-        <h3 className="mb-2 line-clamp-2 text-sm font-semibold text-gray-900 group-hover:text-blue-600">
+        <h3 className="mb-2 line-clamp-2 text-sm font-semibold text-gray-900 group-hover:text-sequoia-600">
           {lecture.title}
         </h3>
 

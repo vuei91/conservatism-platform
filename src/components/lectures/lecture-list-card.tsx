@@ -19,7 +19,7 @@ export function LectureListCard({ lecture }: LectureListCardProps) {
   return (
     <Link href={`/lectures/${lecture.id}`}>
       <article className="group overflow-hidden rounded-xl border border-gray-200 bg-white transition-shadow hover:shadow-lg">
-        <div className="relative aspect-video overflow-hidden bg-linear-to-br from-blue-500 to-blue-700">
+        <div className="relative aspect-video overflow-hidden bg-linear-to-br from-sequoia-500 to-sequoia-700">
           {thumbnails.length >= 1 ? (
             <Image
               src={thumbnails[0]}
@@ -54,7 +54,7 @@ export function LectureListCard({ lecture }: LectureListCardProps) {
               {getDifficultyLabel(lecture.difficulty)}
             </Badge>
           </div>
-          <h3 className="mb-2 line-clamp-2 text-base font-semibold text-gray-900 group-hover:text-blue-600">
+          <h3 className="mb-2 line-clamp-2 text-base font-semibold text-gray-900 group-hover:text-sequoia-600">
             {lecture.title}
           </h3>
           {lecture.description && (

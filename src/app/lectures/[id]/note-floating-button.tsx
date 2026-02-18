@@ -31,7 +31,7 @@ export function NoteFloatingButton({ lectureId }: NoteFloatingButtonProps) {
             isComplete
               ? "bg-green-500 text-white hover:bg-green-600"
               : hasNote
-                ? "bg-blue-500 text-white hover:bg-blue-600"
+                ? "bg-sequoia-500 text-white hover:bg-sequoia-600"
                 : "bg-gray-900 text-white hover:bg-gray-800"
           }
         `}

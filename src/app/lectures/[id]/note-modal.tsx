@@ -157,7 +157,7 @@ export function NotePanel({ lectureId, isOpen, onClose }: NotePanelProps) {
                 }
                 placeholder="예: React Hooks, 상태관리..."
                 rows={isMobile ? 2 : 4}
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none resize-none"
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-sequoia-500 focus:ring-2 focus:ring-sequoia-200 focus:outline-none resize-none"
               />
             </div>
 
@@ -174,7 +174,7 @@ export function NotePanel({ lectureId, isOpen, onClose }: NotePanelProps) {
                 }
                 placeholder="강의에서 배운 내용을 정리해보세요..."
                 rows={isMobile ? 4 : 8}
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none resize-none"
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-sequoia-500 focus:ring-2 focus:ring-sequoia-200 focus:outline-none resize-none"
               />
             </div>
 
@@ -191,7 +191,7 @@ export function NotePanel({ lectureId, isOpen, onClose }: NotePanelProps) {
                 }
                 placeholder="이 강의의 핵심은..."
                 rows={isMobile ? 2 : 3}
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none resize-none"
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-sequoia-500 focus:ring-2 focus:ring-sequoia-200 focus:outline-none resize-none"
               />
             </div>
 

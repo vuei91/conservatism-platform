@@ -139,10 +139,10 @@ export default function SignupPage() {
           aria-labelledby="email-verify-title"
         >
           <div className="mx-4 w-full max-w-sm rounded-xl bg-white p-8 text-center shadow-xl">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-100">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-sequoia-100">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-7 w-7 text-blue-600"
+                className="h-7 w-7 text-sequoia-600"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -223,13 +223,13 @@ export default function SignupPage() {
                 <input
                   type="checkbox"
                   {...register("agreeTerms")}
-                  className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-sequoia-600 focus:ring-sequoia-500"
                 />
                 <span className="text-sm text-gray-600">
                   <Link
                     href="/terms"
                     target="_blank"
-                    className="text-blue-600 hover:underline"
+                    className="text-sequoia-600 hover:underline"
                   >
                     이용약관
                   </Link>
@@ -237,7 +237,7 @@ export default function SignupPage() {
                   <Link
                     href="/privacy"
                     target="_blank"
-                    className="text-blue-600 hover:underline"
+                    className="text-sequoia-600 hover:underline"
                   >
                     개인정보처리방침
                   </Link>
@@ -272,7 +272,7 @@ export default function SignupPage() {
             이미 계정이 있으신가요?{" "}
             <Link
               href="/login"
-              className="font-medium text-blue-600 hover:underline"
+              className="font-medium text-sequoia-600 hover:underline"
             >
               로그인
             </Link>

@@ -182,7 +182,7 @@ export default async function CurriculumDetailPage({ params }: PageProps) {
                 <Card key={cl.id} className="transition-shadow hover:shadow-md">
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-medium text-blue-600 mt-1">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sequoia-100 text-sm font-medium text-sequoia-600 mt-1">
                         {index + 1}
                       </div>
                       {thumbSrc && (
@@ -242,7 +242,7 @@ export default async function CurriculumDetailPage({ params }: PageProps) {
                                   <Link
                                     key={lv.id}
                                     href={`/lectures/${lecture.id}?v=${lv.video.id}&curriculum=${id}`}
-                                    className="flex items-center gap-2 rounded px-2 py-1 text-sm text-gray-600 hover:bg-gray-50 hover:text-blue-600"
+                                    className="flex items-center gap-2 rounded px-2 py-1 text-sm text-gray-600 hover:bg-gray-50 hover:text-sequoia-600"
                                   >
                                     <Play className="h-3 w-3 shrink-0" />
                                     <span className="truncate">

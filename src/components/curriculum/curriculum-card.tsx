@@ -18,7 +18,7 @@ export function CurriculumCard({ curriculum }: CurriculumCardProps) {
   return (
     <Link href={`/curriculums/${curriculum.id}`}>
       <article className="group overflow-hidden rounded-xl border border-gray-200 bg-white transition-shadow hover:shadow-lg">
-        <div className="relative aspect-video overflow-hidden bg-linear-to-br from-blue-500 to-blue-700">
+        <div className="relative aspect-video overflow-hidden bg-linear-to-br from-sequoia-500 to-sequoia-700">
           {curriculum.thumbnail ? (
             <Image
               src={curriculum.thumbnail}
@@ -47,7 +47,7 @@ export function CurriculumCard({ curriculum }: CurriculumCardProps) {
             </Badge>
           </div>
 
-          <h3 className="mb-2 line-clamp-2 text-base font-semibold text-gray-900 group-hover:text-blue-600">
+          <h3 className="mb-2 line-clamp-2 text-base font-semibold text-gray-900 group-hover:text-sequoia-600">
             {curriculum.title}
           </h3>
 

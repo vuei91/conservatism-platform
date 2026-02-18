@@ -226,7 +226,7 @@ export default function SettingsPage() {
           onClick={() => setActiveTab("profile")}
           className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
             activeTab === "profile"
-              ? "border-blue-600 text-blue-600"
+              ? "border-sequoia-600 text-sequoia-600"
               : "border-transparent text-gray-500 hover:text-gray-700"
           }`}
         >
@@ -237,7 +237,7 @@ export default function SettingsPage() {
           onClick={() => setActiveTab("password")}
           className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
             activeTab === "password"
-              ? "border-blue-600 text-blue-600"
+              ? "border-sequoia-600 text-sequoia-600"
               : "border-transparent text-gray-500 hover:text-gray-700"
           }`}
         >

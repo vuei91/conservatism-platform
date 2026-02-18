@@ -223,7 +223,7 @@ export function LecturePlayer({
                 {curriculumId && (
                   <Link
                     href={`/curriculums/${curriculumId}`}
-                    className="text-sm text-blue-600 hover:underline"
+                    className="text-sm text-sequoia-600 hover:underline"
                   >
                     ← 커리큘럼으로 돌아가기
                   </Link>
@@ -251,14 +251,14 @@ export function LecturePlayer({
                       href={href}
                       className={`flex items-center gap-3 rounded-lg p-2 transition-colors ${
                         isActive
-                          ? "bg-blue-50 border border-blue-200"
+                          ? "bg-sequoia-50 border border-sequoia-200"
                           : "hover:bg-gray-50"
                       }`}
                     >
                       <div
                         className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-medium ${
                           isActive
-                            ? "bg-blue-500 text-white"
+                            ? "bg-sequoia-500 text-white"
                             : "bg-gray-100 text-gray-600"
                         }`}
                       >
@@ -268,7 +268,7 @@ export function LecturePlayer({
                         <p
                           className={`text-sm truncate ${
                             isActive
-                              ? "font-medium text-blue-700"
+                              ? "font-medium text-sequoia-700"
                               : "text-gray-700"
                           }`}
                         >
@@ -281,7 +281,7 @@ export function LecturePlayer({
                         )}
                       </div>
                       {isActive && (
-                        <Play className="h-4 w-4 text-blue-500 shrink-0" />
+                        <Play className="h-4 w-4 text-sequoia-500 shrink-0" />
                       )}
                     </Link>
                   );

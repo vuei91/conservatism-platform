@@ -135,7 +135,7 @@ export default function LoginPage() {
             <div className="flex justify-end">
               <Link
                 href="/forgot-password"
-                className="text-sm text-blue-600 hover:underline"
+                className="text-sm text-sequoia-600 hover:underline"
               >
                 비밀번호를 잊으셨나요?
               </Link>
@@ -162,7 +162,7 @@ export default function LoginPage() {
             계정이 없으신가요?{" "}
             <Link
               href="/signup"
-              className="font-medium text-blue-600 hover:underline"
+              className="font-medium text-sequoia-600 hover:underline"
             >
               회원가입
             </Link>

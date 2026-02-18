@@ -7,7 +7,7 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
-            <Link href="/" className="text-xl font-bold text-blue-600">
+            <Link href="/" className="text-xl font-bold text-sequoia-600">
               보수학당
             </Link>
             <p className="mt-4 text-sm text-gray-600">
@@ -24,7 +24,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/lectures"
-                  className="text-sm text-gray-600 hover:text-blue-600"
+                  className="text-sm text-gray-600 hover:text-sequoia-600"
                 >
                   강의 목록
                 </Link>
@@ -39,7 +39,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/contact"
-                  className="text-sm text-gray-600 hover:text-blue-600"
+                  className="text-sm text-gray-600 hover:text-sequoia-600"
                 >
                   문의하기
                 </Link>
@@ -47,7 +47,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/terms"
-                  className="text-sm text-gray-600 hover:text-blue-600"
+                  className="text-sm text-gray-600 hover:text-sequoia-600"
                 >
                   이용약관
                 </Link>
@@ -55,7 +55,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/privacy"
-                  className="text-sm text-gray-600 hover:text-blue-600"
+                  className="text-sm text-gray-600 hover:text-sequoia-600"
                 >
                   개인정보처리방침
                 </Link>

@@ -109,7 +109,7 @@ export default function ContactPage() {
               <textarea
                 {...register("message")}
                 rows={6}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm placeholder:text-gray-400 focus:border-sequoia-500 focus:outline-none focus:ring-1 focus:ring-sequoia-500"
                 placeholder="문의 내용을 입력해주세요"
               />
               {errors.message && (

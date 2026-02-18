@@ -88,8 +88,8 @@ export default function AdminCurriculumsPage() {
                   href={`/admin/curriculums/${curriculum.id}/edit`}
                   className="flex flex-1 items-center gap-4 min-w-0"
                 >
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-blue-100">
-                    <BookOpen className="h-6 w-6 text-blue-600" />
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-sequoia-100">
+                    <BookOpen className="h-6 w-6 text-sequoia-600" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">

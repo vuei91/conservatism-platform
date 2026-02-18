@@ -290,7 +290,7 @@ export default function EditLectureGroupPage({ params }: PageProps) {
               <textarea
                 {...register("description")}
                 rows={3}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-sequoia-500 focus:outline-none focus:ring-1 focus:ring-sequoia-500"
               />
             </div>
             <div>
@@ -299,7 +299,7 @@ export default function EditLectureGroupPage({ params }: PageProps) {
               </label>
               <select
                 {...register("difficulty")}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-sequoia-500 focus:outline-none focus:ring-1 focus:ring-sequoia-500"
               >
                 <option value="beginner">입문</option>
                 <option value="intermediate">중급</option>
@@ -351,8 +351,8 @@ export default function EditLectureGroupPage({ params }: PageProps) {
                   {dragOverIndex === index &&
                     dropPosition === "above" &&
                     draggedIndex !== index && (
-                      <div className="absolute -top-1 left-0 right-0 h-0.5 bg-blue-500 z-10">
-                        <div className="absolute -left-1 -top-1 w-2.5 h-2.5 bg-blue-500 rounded-full" />
+                      <div className="absolute -top-1 left-0 right-0 h-0.5 bg-sequoia-500 z-10">
+                        <div className="absolute -left-1 -top-1 w-2.5 h-2.5 bg-sequoia-500 rounded-full" />
                       </div>
                     )}
                   <div
@@ -363,7 +363,7 @@ export default function EditLectureGroupPage({ params }: PageProps) {
                     onDragEnd={handleDragEnd}
                     className={`flex items-center gap-3 rounded-lg border p-3 my-2 cursor-grab active:cursor-grabbing transition-all ${
                       draggedIndex === index
-                        ? "opacity-50 border-blue-300 bg-blue-50"
+                        ? "opacity-50 border-sequoia-300 bg-sequoia-50"
                         : "border-gray-200 hover:border-gray-300"
                     }`}
                   >
@@ -397,8 +397,8 @@ export default function EditLectureGroupPage({ params }: PageProps) {
                   {dragOverIndex === index &&
                     dropPosition === "below" &&
                     draggedIndex !== index && (
-                      <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-blue-500 z-10">
-                        <div className="absolute -left-1 -top-1 w-2.5 h-2.5 bg-blue-500 rounded-full" />
+                      <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-sequoia-500 z-10">
+                        <div className="absolute -left-1 -top-1 w-2.5 h-2.5 bg-sequoia-500 rounded-full" />
                       </div>
                     )}
                 </div>
@@ -415,7 +415,7 @@ export default function EditLectureGroupPage({ params }: PageProps) {
               <div>
                 <h3 className="text-lg font-semibold">영상 추가</h3>
                 {selectedIds.length > 0 && (
-                  <p className="text-sm text-blue-600">
+                  <p className="text-sm text-sequoia-600">
                     {selectedIds.length}개 선택됨
                   </p>
                 )}
@@ -455,7 +455,7 @@ export default function EditLectureGroupPage({ params }: PageProps) {
                         onClick={() => toggleSelection(video.id)}
                         className={`w-full text-left rounded-lg border p-3 transition-colors ${
                           isSelected
-                            ? "border-blue-500 bg-blue-50"
+                            ? "border-sequoia-500 bg-sequoia-50"
                             : "border-gray-200 hover:bg-gray-50"
                         }`}
                       >
@@ -463,7 +463,7 @@ export default function EditLectureGroupPage({ params }: PageProps) {
                           <div
                             className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 ${
                               isSelected
-                                ? "border-blue-500 bg-blue-500"
+                                ? "border-sequoia-500 bg-sequoia-500"
                                 : "border-gray-300"
                             }`}
                           >

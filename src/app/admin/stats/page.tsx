@@ -110,7 +110,7 @@ export default function StatsPage() {
       label: "전체 회원",
       value: stats?.totalUsers || 0,
       icon: Users,
-      color: "bg-blue-100 text-blue-600",
+      color: "bg-sequoia-100 text-sequoia-600",
     },
     {
       label: "최근 7일 가입",

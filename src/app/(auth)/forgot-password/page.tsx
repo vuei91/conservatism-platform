@@ -123,7 +123,7 @@ export default function ForgotPasswordPage() {
             비밀번호가 기억나셨나요?{" "}
             <Link
               href="/login"
-              className="font-medium text-blue-600 hover:underline"
+              className="font-medium text-sequoia-600 hover:underline"
             >
               로그인
             </Link>

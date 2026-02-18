@@ -112,9 +112,9 @@ export function NoteSection({ lectureId }: NoteSectionProps) {
         </div>
 
         {isEditing ? (
-          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+          <div className="rounded-lg border border-sequoia-200 bg-sequoia-50 p-4">
             {!existingNote && (
-              <div className="mb-3 flex items-center gap-2 text-sm text-blue-600">
+              <div className="mb-3 flex items-center gap-2 text-sm text-sequoia-600">
                 <Clock className="h-4 w-4" />
                 {formatTimestamp(currentTime)}
               </div>
@@ -132,7 +132,7 @@ export function NoteSection({ lectureId }: NoteSectionProps) {
           <div className="rounded-lg border border-gray-200 p-4">
             <div className="mb-3 flex items-center justify-between">
               <button
-                className="flex items-center gap-1 text-sm text-blue-600 hover:underline"
+                className="flex items-center gap-1 text-sm text-sequoia-600 hover:underline"
                 onClick={() => {
                   // TODO: Seek to timestamp
                 }}
@@ -231,7 +231,7 @@ function NoteForm({
             onChange={(e) => setFormData({ ...formData, cue: e.target.value })}
             placeholder="주요 개념, 질문, 키워드"
             rows={4}
-            className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-sequoia-500 focus:outline-none"
           />
         </div>
         <div className="md:col-span-2">
@@ -245,7 +245,7 @@ function NoteForm({
             }
             placeholder="강의 내용 상세 기록"
             rows={4}
-            className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-sequoia-500 focus:outline-none"
           />
         </div>
       </div>
@@ -260,7 +260,7 @@ function NoteForm({
           }
           placeholder="핵심 내용 요약 (강의 후 작성)"
           rows={2}
-          className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+          className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-sequoia-500 focus:outline-none"
         />
       </div>
       <div className="flex justify-end gap-2">

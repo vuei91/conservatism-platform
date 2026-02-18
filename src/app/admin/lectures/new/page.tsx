@@ -151,7 +151,7 @@ export default function NewLecturePage() {
                 <input
                   {...register("youtube_url")}
                   placeholder="https://www.youtube.com/watch?v=..."
-                  className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-sequoia-500 focus:outline-none focus:ring-1 focus:ring-sequoia-500"
                 />
                 <Button
                   type="button"
@@ -186,7 +186,7 @@ export default function NewLecturePage() {
               <textarea
                 {...register("description")}
                 rows={4}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-sequoia-500 focus:outline-none focus:ring-1 focus:ring-sequoia-500"
               />
             </div>
 
@@ -196,7 +196,7 @@ export default function NewLecturePage() {
               </label>
               <select
                 {...register("category_id")}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-sequoia-500 focus:outline-none focus:ring-1 focus:ring-sequoia-500"
               >
                 <option value="">선택 안함</option>
                 {categories.map((cat) => (
@@ -213,7 +213,7 @@ export default function NewLecturePage() {
               </label>
               <select
                 {...register("difficulty")}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-sequoia-500 focus:outline-none focus:ring-1 focus:ring-sequoia-500"
               >
                 <option value="beginner">입문</option>
                 <option value="intermediate">중급</option>
