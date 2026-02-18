@@ -12,9 +12,9 @@ export default function TermsPage() {
               제1조 (목적)
             </h2>
             <p className="text-gray-600 leading-relaxed">
-              본 약관은 보수주의 강의 플랫폼(이하 &quot;플랫폼&quot;)이 제공하는
-              서비스의 이용조건 및 절차, 플랫폼과 회원 간의 권리, 의무 및
-              책임사항을 규정함을 목적으로 합니다.
+              본 약관은 보수학당(이하 &quot;플랫폼&quot;)이 제공하는 서비스의
+              이용조건 및 절차, 플랫폼과 회원 간의 권리, 의무 및 책임사항을
+              규정함을 목적으로 합니다.
             </p>
           </section>
 

@@ -72,9 +72,9 @@ export default async function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-              보수주의 사상을
+              보수학당에 오신 것을
               <br />
-              체계적으로 배우세요
+              환영합니다
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-blue-100">
               유튜브에 산재된 양질의 보수주의 강의를 체계적으로 정리하여 무료로
@@ -123,7 +123,7 @@ export default async function HomePage() {
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">추천 강의</h2>
                 <p className="mt-1 text-gray-600">
-                  엄선된 보수주의 강의를 만나보세요
+                  보수학당이 엄선한 강의를 만나보세요
                 </p>
               </div>
               <Link href="/lectures">
@@ -179,8 +179,8 @@ export default async function HomePage() {
             지금 바로 학습을 시작하세요
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-blue-100">
-            회원가입 없이도 모든 강의를 무료로 시청할 수 있습니다. 로그인하면
-            학습 기록과 메모 기능을 이용할 수 있습니다.
+            회원가입 없이도 모든 강의를 무료로 시청할 수 있습니다. 로그인하시면
+            학습 기록과 메모 기능을 이용하실 수 있습니다.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link href="/lectures">

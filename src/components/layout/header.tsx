@@ -36,9 +36,7 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold text-blue-600">
-              보수주의 강의
-            </span>
+            <span className="text-xl font-bold text-blue-600">보수학당</span>
           </Link>
 
           {/* Desktop Navigation */}

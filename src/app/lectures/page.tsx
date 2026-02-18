@@ -123,7 +123,7 @@ export default async function LecturesPage({ searchParams }: PageProps) {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">강의 목록</h1>
         <p className="mt-2 text-gray-600">
-          보수주의 관련 강의를 탐색하고 학습하세요
+          보수학당의 강의를 탐색하고 학습하세요
         </p>
       </div>
 

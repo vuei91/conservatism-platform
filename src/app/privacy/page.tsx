@@ -14,8 +14,8 @@ export default function PrivacyPage() {
               1. 개인정보의 수집 및 이용 목적
             </h2>
             <p className="text-gray-600 leading-relaxed">
-              보수주의 강의 플랫폼(이하 &quot;플랫폼&quot;)은 다음의 목적을
-              위하여 개인정보를 처리합니다:
+              보수학당(이하 &quot;플랫폼&quot;)은 다음의 목적을 위하여
+              개인정보를 처리합니다:
             </p>
             <ul className="list-disc pl-6 mt-2 text-gray-600 space-y-1">
               <li>

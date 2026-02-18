@@ -8,10 +8,10 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
             <Link href="/" className="text-xl font-bold text-blue-600">
-              보수주의 강의
+              보수학당
             </Link>
             <p className="mt-4 text-sm text-gray-600">
-              보수주의 사상과 철학을 배우고자 하는 분들을 위한 무료 교육
+              보수주의 사상과 철학을 체계적으로 배울 수 있는 무료 교육
               플랫폼입니다. 유튜브에 산재된 양질의 강의를 체계적으로 정리하여
               제공합니다.
             </p>
@@ -66,8 +66,7 @@ export function Footer() {
 
         <div className="mt-8 border-t border-gray-200 pt-8">
           <p className="text-center text-sm text-gray-500">
-            © {new Date().getFullYear()} 보수주의 강의 플랫폼. All rights
-            reserved.
+            © {new Date().getFullYear()} 보수학당. All rights reserved.
           </p>
         </div>
       </div>
