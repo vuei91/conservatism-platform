@@ -72,13 +72,13 @@ export default async function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-              보수학당에 오신 것을
-              <br />
-              환영합니다
+              보수를 배우다, 보수학당
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-sequoia-100">
               유튜브에 산재된 양질의 보수주의 강의를 체계적으로 정리하여 무료로
-              제공합니다. 로그인 없이도 모든 강의를 시청할 수 있습니다.
+              제공합니다.
+              <br />
+              로그인 없이도 모든 강의를 시청할 수 있습니다.
             </p>
             <div className="mt-10">
               <Link href="/lectures">
