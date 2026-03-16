@@ -161,6 +161,12 @@ export function LecturePlayer({
                   {formatDuration(activeVideo.duration)}
                 </span>
               )}
+              <ShareButton
+                lectureId={lecture.id}
+                videoId={activeVideo.id}
+                curriculumId={curriculumId}
+                lectureTitle={lecture.title}
+              />
             </div>
 
             {activeVideo.description && (
@@ -221,29 +227,21 @@ export function LecturePlayer({
                     <BookOpen className="inline h-4 w-4 mr-1" />
                     {lecture.title}
                   </h3>
-                  <div className="flex items-center gap-1">
-                    <ShareButton
-                      lectureId={lecture.id}
-                      videoId={activeVideo.id}
-                      curriculumId={curriculumId}
-                      lectureTitle={lecture.title}
+                  <button
+                    type="button"
+                    onClick={handleToggleFavorite}
+                    disabled={toggleFavorite.isPending}
+                    className="shrink-0 rounded-full p-1.5 transition-colors hover:bg-gray-100"
+                    aria-label={isFavorite ? "즐겨찾기 해제" : "즐겨찾기"}
+                  >
+                    <Heart
+                      className={`h-5 w-5 ${
+                        isFavorite
+                          ? "fill-red-500 text-red-500"
+                          : "text-gray-400"
+                      }`}
                     />
-                    <button
-                      type="button"
-                      onClick={handleToggleFavorite}
-                      disabled={toggleFavorite.isPending}
-                      className="shrink-0 rounded-full p-1.5 transition-colors hover:bg-gray-100"
-                      aria-label={isFavorite ? "즐겨찾기 해제" : "즐겨찾기"}
-                    >
-                      <Heart
-                        className={`h-5 w-5 ${
-                          isFavorite
-                            ? "fill-red-500 text-red-500"
-                            : "text-gray-400"
-                        }`}
-                      />
-                    </button>
-                  </div>
+                  </button>
                 </div>
                 <p className="text-sm text-gray-500">
                   {sortedVideos.length}개 영상
