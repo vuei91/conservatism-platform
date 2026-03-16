@@ -1,10 +1,78 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getYouTubeThumbnail, getDifficultyLabel } from "@/lib/utils";
 import { LecturePlayer } from "./lecture-player";
 
 interface PageProps {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ v?: string; curriculum?: string }>;
+}
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: PageProps): Promise<Metadata> {
+  const { id } = await params;
+  const { v: videoId } = await searchParams;
+  const supabase = await createClient();
+
+  const { data: lecture } = await supabase
+    .from("lectures")
+    .select(
+      `
+      title,
+      description,
+      difficulty,
+      lecture_videos(
+        order,
+        video:videos(id, youtube_id, title, thumbnail_url)
+      )
+    `,
+    )
+    .eq("id", id)
+    .single();
+
+  if (!lecture) return { title: "강의를 찾을 수 없습니다" };
+
+  const sortedVideos =
+    lecture.lecture_videos?.sort(
+      (a: { order: number }, b: { order: number }) => a.order - b.order,
+    ) || [];
+
+  // 현재 영상 또는 첫 번째 영상의 썸네일 사용
+  const targetVideo = videoId
+    ? sortedVideos.find(
+        (lv: { video: { id: string } | null }) =>
+          lv.video?.id === videoId,
+      )?.video ?? sortedVideos[0]?.video
+    : sortedVideos[0]?.video;
+
+  const thumbnailUrl = targetVideo
+    ? getYouTubeThumbnail(targetVideo.youtube_id, "maxres")
+    : undefined;
+
+  const title = lecture.title;
+  const description =
+    lecture.description ||
+    `${getDifficultyLabel(lecture.difficulty)} · ${sortedVideos.length}개 영상`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "video.other",
+      images: thumbnailUrl ? [{ url: thumbnailUrl, width: 1280, height: 720 }] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: thumbnailUrl ? [thumbnailUrl] : [],
+    },
+  };
 }
 
 export default async function LecturePage({ params, searchParams }: PageProps) {
