@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Convention Check",
+  "description": "파일 작성 전에 프로젝트 컨벤션(Supabase 클라이언트 사용법, 컴포넌트 패턴, import 경로 등)을 준수하는지 확인합니다.",
+  "version": "1",
+  "when": {
+    "type": "preToolUse",
+    "toolTypes": [
+      "write"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "작성하려는 코드가 프로젝트 컨벤션을 따르는지 확인하라:\n1. 서버 컴포넌트에서 @/lib/supabase/client를 import하고 있지 않은지\n2. 클라이언트 컴포넌트에 \"use client\" 선언이 있는지\n3. UI 컴포넌트를 @/components/ui에서 import하는지\n4. 타입을 @/types/database에서 import하는지\n문제가 없으면 그대로 진행하라."
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "name": "Lint on Save",
+  "description": "TypeScript/TSX 파일이 수정되면 자동으로 ESLint를 실행하여 코드 품질 문제를 즉시 감지합니다.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/*.ts",
+      "**/*.tsx"
+    ]
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "npx eslint --no-warn-ignored ${filePath}"
+  }
+}
