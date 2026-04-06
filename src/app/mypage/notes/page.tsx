@@ -17,23 +17,28 @@ export default function NotesPage() {
   const { user, isLoading: authLoading } = useAuthStore();
   const { data: notes = [], isLoading: notesLoading } = useNotes();
 
-  // 노트에 연결된 강의 정보 가져오기
+  // 노트에 연결된 영상 정보 + 소속 강의 ID 가져오기
   const videoIds = [...new Set(notes.map((n: Note) => n.video_id))];
-  const { data: videos = [] } = useQuery({
+  const { data: videoInfos = [] } = useQuery({
     queryKey: ["videos-for-notes", videoIds],
     queryFn: async () => {
       if (videoIds.length === 0) return [];
       const supabase = createClient();
       const { data } = await supabase
         .from("videos")
-        .select("id, title")
+        .select("id, title, lecture_videos(lecture_id)")
         .in("id", videoIds as string[]);
-      return (data || []) as Pick<Video, "id" | "title">[];
+      return (data || []) as (Pick<Video, "id" | "title"> & {
+        lecture_videos: { lecture_id: string }[];
+      })[];
     },
     enabled: videoIds.length > 0,
   });
 
-  const videoMap = new Map(videos.map((v) => [v.id, v.title]));
+  const videoMap = new Map(videoInfos.map((v) => [v.id, v.title]));
+  const videoToLectureMap = new Map(
+    videoInfos.map((v) => [v.id, v.lecture_videos?.[0]?.lecture_id]),
+  );
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -95,6 +100,7 @@ export default function NotesPage() {
               key={note.id}
               note={note}
               lectureTitle={videoMap.get(note.video_id) || "알 수 없는 영상"}
+              lectureId={videoToLectureMap.get(note.video_id)}
             />
           ))}
         </div>
@@ -106,12 +112,18 @@ export default function NotesPage() {
 function NoteCard({
   note,
   lectureTitle,
+  lectureId,
 }: {
   note: Note;
   lectureTitle: string;
+  lectureId?: string;
 }) {
+  const href = lectureId
+    ? `/lectures/${lectureId}?v=${note.video_id}`
+    : `/lectures/${note.video_id}`;
+
   return (
-    <Link href={`/lectures/${note.video_id}`}>
+    <Link href={href}>
       <Card className="transition-shadow hover:shadow-md">
         <CardContent className="p-4">
           <div className="mb-3 flex items-start justify-between">

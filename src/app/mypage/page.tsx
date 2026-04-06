@@ -8,6 +8,9 @@ import { Card, CardContent, Button, Skeleton } from "@/components/ui";
 import { useAuthStore } from "@/stores/auth-store";
 import { useFavorites, useNotes, useContinueWatching } from "@/hooks";
 import { LectureListCard } from "@/components/lectures";
+import { createClient } from "@/lib/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import type { Note, Video } from "@/types/database";
 
 export default function MyPage() {
   const router = useRouter();
@@ -16,6 +19,28 @@ export default function MyPage() {
   const { data: notes = [], isLoading: notesLoading } = useNotes();
   const { data: continueWatching = [], isLoading: continueWatchingLoading } =
     useContinueWatching();
+
+  // 노트의 video_id → lecture_id 매핑
+  const videoIds = [...new Set(notes.map((n: Note) => n.video_id))];
+  const { data: videoInfos = [] } = useQuery({
+    queryKey: ["videos-for-notes", videoIds],
+    queryFn: async () => {
+      if (videoIds.length === 0) return [];
+      const supabase = createClient();
+      const { data } = await supabase
+        .from("videos")
+        .select("id, title, lecture_videos(lecture_id)")
+        .in("id", videoIds as string[]);
+      return (data || []) as (Pick<Video, "id" | "title"> & {
+        lecture_videos: { lecture_id: string }[];
+      })[];
+    },
+    enabled: videoIds.length > 0,
+  });
+
+  const videoToLectureMap = new Map(
+    videoInfos.map((v) => [v.id, v.lecture_videos?.[0]?.lecture_id]),
+  );
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -291,31 +316,37 @@ export default function MyPage() {
           </Card>
         ) : (
           <div className="space-y-3">
-            {notes.slice(0, 5).map((note) => (
-              <Link key={note.id} href={`/lectures/${note.video_id}`}>
-                <Card className="transition-shadow hover:shadow-md">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        {note.cue && (
-                          <p className="mb-1 text-sm font-medium text-sequoia-600">
-                            {note.cue}
+            {notes.slice(0, 5).map((note) => {
+              const lectureId = videoToLectureMap.get(note.video_id);
+              const href = lectureId
+                ? `/lectures/${lectureId}?v=${note.video_id}`
+                : `/lectures/${note.video_id}`;
+              return (
+                <Link key={note.id} href={href}>
+                  <Card className="transition-shadow hover:shadow-md">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          {note.cue && (
+                            <p className="mb-1 text-sm font-medium text-sequoia-600">
+                              {note.cue}
+                            </p>
+                          )}
+                          <p className="line-clamp-2 text-sm text-gray-700">
+                            {note.content}
                           </p>
+                        </div>
+                        {note.is_complete && (
+                          <span className="ml-2 rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">
+                            완료
+                          </span>
                         )}
-                        <p className="line-clamp-2 text-sm text-gray-700">
-                          {note.content}
-                        </p>
                       </div>
-                      {note.is_complete && (
-                        <span className="ml-2 rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">
-                          완료
-                        </span>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
           </div>
         )}
       </section>
