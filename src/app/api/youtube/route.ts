@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 function extractYouTubeId(url: string): string | null {
   const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/|youtube\.com\/live\/)([^&\n?#]+)/,
+    /youtube\.com\/v\/([^&\n?#]+)/,
     /^([a-zA-Z0-9_-]{11})$/,
   ];
 
@@ -53,9 +54,20 @@ export async function GET(request: NextRequest) {
 
   // YouTube Data API 사용
   try {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://conservatism-platform.vercel.app";
     const apiUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${videoId}&key=${apiKey}`;
-    const res = await fetch(apiUrl);
+    const res = await fetch(apiUrl, {
+      headers: { Referer: siteUrl },
+    });
     const data = await res.json();
+
+    if (data.error) {
+      console.error("YouTube API error:", JSON.stringify(data.error));
+      return NextResponse.json(
+        { error: `YouTube API 오류: ${data.error.message || "알 수 없는 오류"}` },
+        { status: data.error.code || 500 },
+      );
+    }
 
     if (!data.items || data.items.length === 0) {
       return NextResponse.json({ error: "Video not found" }, { status: 404 });
